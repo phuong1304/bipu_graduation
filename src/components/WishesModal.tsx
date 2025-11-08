@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { X, Sparkles, Loader, MessageCircle } from 'lucide-react';
 import { submitWish, getWishes, Wish } from '../lib/supabase';
+import WishReactions from './WishReactions';
 
 interface WishesModalProps {
   isOpen: boolean;
@@ -17,6 +18,13 @@ export default function WishesModal({ isOpen, onClose }: WishesModalProps) {
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [error, setError] = useState('');
   const [isLoadingWishes, setIsLoadingWishes] = useState(true);
+  const [sessionId] = useState(() => {
+    const stored = localStorage.getItem('wish_session_id');
+    if (stored) return stored;
+    const id = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    localStorage.setItem('wish_session_id', id);
+    return id;
+  });
 
   useEffect(() => {
     if (isOpen) {
@@ -188,7 +196,8 @@ export default function WishesModal({ isOpen, onClose }: WishesModalProps) {
                         <p className="text-xs text-gray-500">{formatDate(wish.created_at)}</p>
                       )}
                     </div>
-                    <p className="text-gray-700 whitespace-pre-wrap">{wish.message}</p>
+                    <p className="text-gray-700 whitespace-pre-wrap mb-3">{wish.message}</p>
+                    {wish.id && <WishReactions wishId={wish.id} sessionId={sessionId} />}
                   </div>
                 ))}
               </div>

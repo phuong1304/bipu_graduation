@@ -27,6 +27,14 @@ export interface Wish {
   created_at?: string;
 }
 
+export interface WishReaction {
+  id?: string;
+  wish_id: string;
+  sticker: string;
+  session_id: string;
+  created_at?: string;
+}
+
 export async function submitRSVP(rsvp: RSVPResponse) {
   const { data, error } = await supabase
     .from('rsvp_responses')
@@ -67,4 +75,36 @@ export async function getRSVPResponses() {
 
   if (error) throw error;
   return data;
+}
+
+export async function addReaction(wishId: string, sticker: string, sessionId: string) {
+  const { data, error } = await supabase
+    .from('wish_reactions')
+    .insert([{ wish_id: wishId, sticker, session_id: sessionId }])
+    .select()
+    .maybeSingle();
+
+  if (error) throw error;
+  return data;
+}
+
+export async function getReactionsForWish(wishId: string) {
+  const { data, error } = await supabase
+    .from('wish_reactions')
+    .select('*')
+    .eq('wish_id', wishId);
+
+  if (error) throw error;
+  return data || [];
+}
+
+export async function getUserReactionsForWish(wishId: string, sessionId: string) {
+  const { data, error } = await supabase
+    .from('wish_reactions')
+    .select('*')
+    .eq('wish_id', wishId)
+    .eq('session_id', sessionId);
+
+  if (error) throw error;
+  return data || [];
 }
