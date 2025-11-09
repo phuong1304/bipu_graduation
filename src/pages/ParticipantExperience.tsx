@@ -24,6 +24,9 @@ export default function ParticipantExperience({ user, onLogout }: ParticipantExp
   const [isSavingDinnerChoice, setIsSavingDinnerChoice] = useState(false);
   const [previewWishes, setPreviewWishes] = useState<Wish[]>([]);
   const [isLoadingWishes, setIsLoadingWishes] = useState(false);
+  const friendlyName = user.salutation?.trim()
+    ? `${user.salutation.trim()} ${user.display_name}`
+    : user.display_name;
 
   useEffect(() => {
     setCanAttendDinner(Boolean(user.invited_to_dinner));
@@ -87,7 +90,7 @@ export default function ParticipantExperience({ user, onLogout }: ParticipantExp
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-indigo-900 to-purple-900 relative overflow-hidden">
 
       <div className="absolute top-4 right-4 z-20 flex items-center gap-3 bg-white/85 text-slate-700 px-4 py-2 rounded-full shadow-lg">
-        <span className="text-xs sm:text-sm font-semibold whitespace-nowrap">Xin chào, {user.display_name}</span>
+        <span className="text-xs sm:text-sm font-semibold whitespace-nowrap">Xin chào, {friendlyName}</span>
         <button
           onClick={() => {
             setIsRSVPModalOpen(false);
@@ -107,12 +110,12 @@ export default function ParticipantExperience({ user, onLogout }: ParticipantExp
     const dur = 5 + Math.random() * 4;
 
     // rải ngang toàn màn hình + dư ra 20vw để quỹ đạo đi qua cả góc trên-phải
-    const x0 = -20 + Math.random() * 120;   // [-20vw .. 100vw]
-    const y0 = 0 + Math.random() * 30;    // [-30vh .. 0vh]
+    const x0 = Math.random() * 100;   // start off-screen bên trái
+    const y0 = Math.random() * 100;   // start phía trên để bay chéo xuống
 
-    // quãng rơi lớn để cắt trọn màn hình
-    const dx = 170 + Math.random() * 60;    // [170 .. 230] vw
-    const dy = dx * (0.95 + Math.random() * 0.1); // gần 45°, +/- 5%
+    const travel = 160 + Math.random() * 70; // quãng đường giống nhau cho X/Y để giữ 45°
+    const dx = travel;
+    const dy = travel;
     const sx = 0.4 + Math.random() * 0.4;
 
     return (  
@@ -361,7 +364,7 @@ export default function ParticipantExperience({ user, onLogout }: ParticipantExp
       <WishesModal
         isOpen={isWishesModalOpen}
         onClose={() => setIsWishesModalOpen(false)}
-        currentUserName={user.display_name}
+        currentUserName={friendlyName}
         currentUserId={user.id}
         currentUsername={user.username}
       />

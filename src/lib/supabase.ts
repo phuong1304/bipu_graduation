@@ -47,6 +47,7 @@ export interface AppUser {
   email: string;
   username: string;
   display_name: string;
+  salutation?: string;
   password: string;
   role: AppUserRole;
   invited_to_dinner?: boolean;
@@ -58,6 +59,7 @@ export interface ParticipantUpsertInput {
   id?: string;
   username: string;
   display_name: string;
+  salutation?: string;
   invited_to_dinner?: boolean;
 }
 
@@ -245,6 +247,7 @@ export async function updateUserProfile(
 export async function upsertParticipant(participant: ParticipantUpsertInput) {
   const username = participant.username.trim().toLowerCase();
   const displayName = participant.display_name.trim() || username;
+  const salutation = participant.salutation?.trim() || '';
 
   if (!username || !displayName) {
     throw new Error('Username va ten hien thi khong duoc de trong');
@@ -281,6 +284,7 @@ export async function upsertParticipant(participant: ParticipantUpsertInput) {
     username,
     email: existingEmail || fallbackEmail,
     display_name: displayName,
+    salutation,
     password: existingPassword || fallbackPassword,
     role: 'user',
     invited_to_dinner: participant.invited_to_dinner ?? false,

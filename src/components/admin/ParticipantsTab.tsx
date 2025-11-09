@@ -21,6 +21,7 @@ const defaultForm: ParticipantUpsertInput & { id: string } = {
   id: '',
   username: '',
   display_name: '',
+  salutation: '',
   invited_to_dinner: false
 };
 
@@ -52,7 +53,7 @@ export default function ParticipantsTab({ participants, isLoading, onRefresh }: 
 
       const matchesText =
         !normalizedFilter ||
-        [participant.display_name, participant.username, participant.email, rsvp?.name, rsvp?.email]
+        [participant.display_name, participant.salutation, participant.username, participant.email, rsvp?.name, rsvp?.email]
           .filter(Boolean)
           .some((value) => value!.toLowerCase().includes(normalizedFilter));
 
@@ -76,6 +77,7 @@ export default function ParticipantsTab({ participants, isLoading, onRefresh }: 
     setMessage(null);
 
     const trimmedName = participantForm.display_name.trim();
+    const trimmedSalutation = participantForm.salutation?.trim() || '';
     const generatedUsername =
       participantForm.username.trim() || generateUsernameFromName(trimmedName || '');
 
@@ -90,6 +92,7 @@ export default function ParticipantsTab({ participants, isLoading, onRefresh }: 
         id: participantForm.id || undefined,
         username: generatedUsername,
         display_name: trimmedName,
+        salutation: trimmedSalutation,
         invited_to_dinner: participantForm.invited_to_dinner
       });
       setMessage({ type: 'success', text: 'Da luu thong tin nguoi tham gia' });
@@ -108,6 +111,7 @@ export default function ParticipantsTab({ participants, isLoading, onRefresh }: 
       id: participant.id || '',
       username: participant.username || '',
       display_name: participant.display_name || '',
+      salutation: participant.salutation || '',
       invited_to_dinner: participant.invited_to_dinner ?? false
     });
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -188,6 +192,16 @@ export default function ParticipantsTab({ participants, isLoading, onRefresh }: 
               onChange={(e) => setParticipantForm((prev) => ({ ...prev, display_name: e.target.value }))}
               className="w-full rounded-xl border border-gray-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white"
               placeholder="Vi du: Hoang Minh Nhut"
+            />
+          </div>
+          <div>
+            <label className="text-sm font-semibold text-gray-600 mb-1 block">Danh xung</label>
+            <input
+              type="text"
+              value={participantForm.salutation}
+              onChange={(e) => setParticipantForm((prev) => ({ ...prev, salutation: e.target.value }))}
+              className="w-full rounded-xl border border-gray-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white"
+              placeholder="Vi du: Anh, Chi, Ban..."
             />
           </div>
           <div className="md:col-span-2">
