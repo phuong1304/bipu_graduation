@@ -209,10 +209,11 @@ export async function getParticipants() {
 }
 
 export async function loginUser(username: string, role: AppUserRole) {
+  const normalized = username.trim().toLowerCase();
   const { data, error } = await supabase
     .from('app_users')
     .select('*')
-    .eq('username', username)
+    .eq('username', normalized)
     .eq('role', role)
     .maybeSingle();
 
@@ -223,6 +224,19 @@ export async function loginUser(username: string, role: AppUserRole) {
   }
 
   return data as AppUser;
+}
+
+export async function findUserByUsername(username: string, role: AppUserRole) {
+  const normalized = username.trim().toLowerCase();
+  const { data, error } = await supabase
+    .from('app_users')
+    .select('*')
+    .eq('username', normalized)
+    .eq('role', role)
+    .maybeSingle();
+
+  if (error) throw error;
+  return (data as AppUser) ?? null;
 }
 
 export async function updateUserProfile(

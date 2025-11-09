@@ -1,19 +1,23 @@
 import { useEffect, useRef, useState } from 'react';
-import { Lock, Loader2, Sparkles, Info, Calendar, MapPin, GraduationCap } from 'lucide-react';
+import { Lock, Loader2, Sparkles, Info, Calendar, MapPin, GraduationCap, User } from 'lucide-react';
 import type { AppUser } from '../lib/supabase';
-import { loginUser } from '../lib/supabase';
+import { findUserByUsername, upsertParticipant } from '../lib/supabase';
 import gradPhoto from '../../assets/bipu.jpg';
 
 interface ParticipantLoginPageProps {
   onAuthenticated: (user: AppUser) => void;
 }
 
-
 export default function ParticipantLoginPage({ onAuthenticated }: ParticipantLoginPageProps) {
-  const [username, setUsername] = useState("");
+  const [username, setUsername] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
+  const [profileModalOpen, setProfileModalOpen] = useState(false);
+  const [pendingUsername, setPendingUsername] = useState('');
+  const [profileForm, setProfileForm] = useState({ salutation: '', displayName: '' });
+  const [profileError, setProfileError] = useState('');
+  const [isCreatingProfile, setIsCreatingProfile] = useState(false);
   const backgroundStars = Array.from({ length: 25 }, (_, index) => index);
   const transitionTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -25,22 +29,73 @@ export default function ParticipantLoginPage({ onAuthenticated }: ParticipantLog
     };
   }, []);
 
+  const startExperienceTransition = (user: AppUser) => {
+    setIsTransitioning(true);
+    transitionTimeoutRef.current = setTimeout(() => {
+      onAuthenticated(user);
+    }, 3000);
+  };
+
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     setError('');
+    const normalizedUsername = username.trim().toLowerCase();
+
+    if (!normalizedUsername) {
+      setError('Vui lòng nhập username');
+      return;
+    }
 
     try {
       setIsLoading(true);
-      const user = await loginUser(username.trim(), 'user');
-      setIsTransitioning(true);
-      transitionTimeoutRef.current = setTimeout(() => {
-        onAuthenticated(user);
-      }, 3000);
+      const existingUser = await findUserByUsername(normalizedUsername, 'user');
+      if (existingUser) {
+        startExperienceTransition(existingUser);
+      } else {
+        setPendingUsername(normalizedUsername);
+        setProfileForm({ salutation: '', displayName: '' });
+        setProfileError('');
+        setProfileModalOpen(true);
+      }
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Đã có lỗi xảy ra';
       setError(message);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleProfileSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    setProfileError('');
+
+    if (!pendingUsername) {
+      setProfileError('Thiếu username, vui lòng thử lại.');
+      return;
+    }
+
+    const trimmedDisplayName = profileForm.displayName.trim();
+    if (!trimmedDisplayName) {
+      setProfileError('Vui lòng nhập họ tên hiển thị.');
+      return;
+    }
+
+    try {
+      setIsCreatingProfile(true);
+      const newUser = await upsertParticipant({
+        username: pendingUsername,
+        display_name: trimmedDisplayName,
+        salutation: profileForm.salutation.trim(),
+        invited_to_dinner: false
+      });
+
+      setProfileModalOpen(false);
+      startExperienceTransition(newUser);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Không thể tạo người tham gia.';
+      setProfileError(message);
+    } finally {
+      setIsCreatingProfile(false);
     }
   };
 
@@ -125,15 +180,14 @@ export default function ParticipantLoginPage({ onAuthenticated }: ParticipantLog
                         type="text"
                         value={username}
                         onChange={(e) => setUsername(e.target.value)}
-                        placeholder="Nhập tên người tham gia"
+                        placeholder="Nhập username của bạn"
                         required
                         className="w-full rounded-2xl border border-slate-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-300 bg-white/90 text-slate-800"
                       />
                       <p className="text-xs text-slate-500 flex items-center gap-2 mt-2">
                         <Info className="w-4 h-4 flex-shrink-0 text-indigo-400" />
                         <span>
-                          Tên người tham gia được tạo từ họ tên (ví dụ Hoàng Minh Nhựt →{' '}
-                          <span className="font-mono">nhuthm</span>)
+                          Username được tạo từ họ tên (ví dụ Hoàng Minh Nhựt → <span className="font-mono">nhuthm</span>)
                         </span>
                       </p>
                     </div>
@@ -168,6 +222,19 @@ export default function ParticipantLoginPage({ onAuthenticated }: ParticipantLog
           </div>
         </div>
       </div>
+
+      <ProfileSetupModal
+        isOpen={profileModalOpen}
+        onClose={() => {
+          setProfileModalOpen(false);
+          setPendingUsername('');
+        }}
+        onSubmit={handleProfileSubmit}
+        formValues={profileForm}
+        onChange={setProfileForm}
+        isSubmitting={isCreatingProfile}
+        error={profileError}
+      />
     </div>
   );
 }
@@ -200,6 +267,92 @@ function LetterLoadingScreen() {
         <div className="text-center space-y-1">
           <p className="text-base font-semibold tracking-[0.35em] uppercase text-white/80">Đang mở thiệp</p>
         </div>
+      </div>
+    </div>
+  );
+}
+
+interface ProfileSetupModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onSubmit: (event: React.FormEvent) => void;
+  formValues: { salutation: string; displayName: string };
+  onChange: React.Dispatch<React.SetStateAction<{ salutation: string; displayName: string }>>;
+  isSubmitting: boolean;
+  error: string;
+}
+
+function ProfileSetupModal({
+  isOpen,
+  onClose,
+  onSubmit,
+  formValues,
+  onChange,
+  isSubmitting,
+  error,
+}: ProfileSetupModalProps) {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+      <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full p-8 space-y-6">
+        <div className="text-center space-y-2">
+          <div className="mx-auto w-16 h-16 rounded-full bg-rose-100 flex items-center justify-center">
+            <User className="w-8 h-8 text-rose-500" />
+          </div>
+          <h2 className="text-2xl font-bold text-slate-900">Chúng tôi nên gọi bạn như thế nào?</h2>
+        </div>
+
+        <form onSubmit={onSubmit} className="space-y-4">
+          <div>
+            <label className="text-sm font-semibold text-slate-700 mb-1 block">Danh xưng (tuỳ chọn)</label>
+            <input
+              type="text"
+              value={formValues.salutation}
+              onChange={(e) => onChange((prev) => ({ ...prev, salutation: e.target.value }))}
+              className="w-full rounded-xl border border-slate-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-rose-400 bg-white"
+              placeholder="Ví dụ: Anh, Chị, Bạn..."
+            />
+          </div>
+
+          <div>
+            <label className="text-sm font-semibold text-slate-700 mb-1 block">Họ tên *</label>
+            <input
+              type="text"
+              value={formValues.displayName}
+              onChange={(e) => onChange((prev) => ({ ...prev, displayName: e.target.value }))}
+              className="w-full rounded-xl border border-slate-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-rose-400 bg-white"
+              placeholder="Ví dụ: Nguyễn Minh Anh"
+              required
+            />
+          </div>
+
+          {error && <p className="text-sm text-red-500">{error}</p>}
+
+          <div className="flex items-center justify-end gap-3 pt-2">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 transition"
+            >
+              Hủy
+            </button>
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="px-5 py-2 rounded-xl bg-gradient-to-r from-rose-500 to-pink-500 text-white font-semibold shadow-lg hover:shadow-xl disabled:opacity-60"
+            >
+              {isSubmitting ? (
+                <span className="flex items-center gap-2">
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Đang tạo...
+                </span>
+              ) : (
+                'Mở thiệp'
+              )}
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   );
