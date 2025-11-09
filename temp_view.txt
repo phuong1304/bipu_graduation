@@ -1,0 +1,309 @@
+import { useEffect, useState, type ReactNode } from 'react';
+import { Sparkles, Heart, Music, Calendar, MapPin, Clock, GraduationCap, Users } from 'lucide-react';
+import WishesModal from '../components/WishesModal';
+import RSVPModal from '../components/RSVPModal';
+import DinnerInviteModal from '../components/DinnerInviteModal';
+import type { AppUser } from '../lib/supabase';
+import { updateDinnerAttendance } from '../lib/supabase';
+import gradPhoto from '../../assets/bipu.jpg';
+
+interface ParticipantExperienceProps {
+  user: AppUser;
+  onLogout: () => void;
+}
+
+export default function ParticipantExperience({ user, onLogout }: ParticipantExperienceProps) {
+  const [isVisible, setIsVisible] = useState(false);
+  const [showConfetti, setShowConfetti] = useState(false);
+  const [isRSVPModalOpen, setIsRSVPModalOpen] = useState(false);
+  const [isWishesModalOpen, setIsWishesModalOpen] = useState(false);
+  const [isDinnerModalOpen, setIsDinnerModalOpen] = useState(false);
+  const [lastCeremonyDecision, setLastCeremonyDecision] = useState<boolean | null>(null);
+  const [canAttendDinner, setCanAttendDinner] = useState(Boolean(user.invited_to_dinner));
+  const [isSavingDinnerChoice, setIsSavingDinnerChoice] = useState(false);
+
+  useEffect(() => {
+    setCanAttendDinner(Boolean(user.invited_to_dinner));
+  }, [user.invited_to_dinner]);
+
+  useEffect(() => {
+    setIsVisible(true);
+    const timer = setTimeout(() => setShowConfetti(true), 900);
+    return () => clearTimeout(timer);
+  }, []);
+
+  const confettiPieces = Array.from({ length: 30 }, (_, index) => index);
+
+  const handleCeremonyDecision = (willAttend: boolean) => {
+    setLastCeremonyDecision(willAttend);
+    setIsRSVPModalOpen(false);
+    if (canAttendDinner) {
+      setIsDinnerModalOpen(true);
+    } else {
+      setIsWishesModalOpen(true);
+    }
+  };
+
+  const handleDinnerChoice = async (attending: boolean) => {
+    if (!user.id) {
+      setIsDinnerModalOpen(false);
+      setIsWishesModalOpen(true);
+      return;
+    }
+    try {
+      setIsSavingDinnerChoice(true);
+      await updateDinnerAttendance(user.id, attending);
+      setCanAttendDinner(attending);
+    } catch (error) {
+      console.error('Unable to update dinner attendance', error);
+    } finally {
+      setIsSavingDinnerChoice(false);
+      setIsDinnerModalOpen(false);
+      setIsWishesModalOpen(true);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-rose-50 via-sky-50 to-indigo-100 overflow-hidden relative">
+      <div className="absolute top-4 right-4 z-20 flex items-center gap-3 bg-white/85 text-slate-700 px-4 py-2 rounded-full shadow">
+        <span className="text-xs sm:text-sm font-semibold whitespace-nowrap">Xin chao, {user.display_name}</span>
+        <button
+          onClick={() => {
+            setIsRSVPModalOpen(false);
+            setIsDinnerModalOpen(false);
+            setIsWishesModalOpen(false);
+            onLogout();
+          }}
+          className="text-xs sm:text-sm font-bold uppercase tracking-wide hover:text-indigo-500 transition-colors"
+        >
+          Dang xuat
+        </button>
+      </div>
+
+      {showConfetti &&
+        confettiPieces.map((piece) => (
+          <div
+            key={piece}
+            className="confetti absolute"
+            style={{
+              left: `${Math.random() * 100}%`,
+              animationDelay: `${Math.random() * 3}s`,
+              animationDuration: `${3 + Math.random() * 2}s`
+            }}
+          />
+        ))}
+
+      <div className="stars-container">
+        {Array.from({ length: 25 }).map((_, index) => (
+          <div
+            key={index}
+            className="star"
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+              animationDelay: `${Math.random() * 3}s`
+            }}
+          />
+        ))}
+      </div>
+
+      <div className="min-h-screen flex items-center justify-center p-4 sm:p-6 md:p-8">
+        <div
+          className={`max-w-4xl w-full transform transition-all duration-1000 ${
+            isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
+          }`}
+        >
+          <div className="bg-white/95 backdrop-blur-lg rounded-3xl shadow-[0_20px_60px_rgba(23,37,84,0.2)] overflow-hidden border border-rose-100 animate-float">
+            <div className="bg-gradient-to-r from-rose-300 via-sky-300 to-indigo-300 p-[1px]">
+              <div className="bg-white p-8 sm:p-12 md:p-16 space-y-10">
+                <div className="text-center space-y-6">
+                  <div className="flex justify-center">
+                    <div className="relative">
+                      <GraduationCap className="w-20 h-20 text-indigo-500" />
+                      <Sparkles className="w-8 h-8 text-pink-400 absolute -top-2 -right-2 animate-pulse" />
+                    </div>
+                  </div>
+
+                  <p className="uppercase tracking-[0.3em] text-xs sm:text-sm text-slate-400 font-semibold">Thiep moi dac biet</p>
+
+                  <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold bg-gradient-to-r from-indigo-500 via-rose-500 to-amber-400 bg-clip-text text-transparent leading-tight text-balance">
+                    <span className="block">Le Tot Nghiep</span>
+                    <span className="block">Vu Thi Bich Phuong</span>
+                  </h1>
+
+                  <p className="text-base sm:text-lg md:text-xl text-slate-700 max-w-2xl mx-auto">
+                    Chung toi tran trong gui den ban loi moi tham du khoanh khac danh dau cot moc truong thanh cua{' '}
+                    <span className="font-semibold text-indigo-600">Vu Thi Bich Phuong</span>. Hay den Dai hoc FPT - Khu Cong Nghe Cao de cung se chia niem vui.
+                  </p>
+
+                  <div className="w-full flex justify-center">
+                    <div className="w-full sm:w-3/4 lg:w-2/3 rounded-[2.5rem] border border-indigo-100 bg-white shadow-xl overflow-hidden">
+                      <img src={gradPhoto} alt="Vu Thi Bich Phuong" className="w-full h-64 sm:h-80 object-cover object-center" />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <InfoPill icon={<Calendar className="w-5 h-5" />} title="Thoi gian" accent="from-indigo-500 to-purple-500">
+                    20/11/2025 &middot; 08:00 - 09:00 & 11:00+
+                  </InfoPill>
+                  <InfoPill icon={<MapPin className="w-5 h-5" />} title="Dia diem" accent="from-pink-500 to-rose-500">
+                    Dai hoc FPT - Khu Cong Nghe Cao
+                    <br />
+                    7 Duong D1, Long Thanh My, Thu Duc, TP.HCM
+                  </InfoPill>
+                  <InfoPill icon={<Clock className="w-5 h-5" />} title="Check-in" accent="from-blue-500 to-cyan-500">
+                    09:20 - 09:40 &middot; Tang 5 Hoi truong A (Session 3)
+                  </InfoPill>
+                  <InfoPill icon={<Music className="w-5 h-5" />} title="Dress code" accent="from-amber-500 to-orange-500">
+                    Elegant pastel &middot; Touch of gold
+                  </InfoPill>
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 text-left">
+                  <section className="bg-white rounded-2xl p-5 sm:p-6 border border-indigo-100 shadow-lg space-y-1.5">
+                    <h3 className="text-lg font-semibold text-indigo-600 mb-3 flex items-center gap-2">
+                      <Users className="w-5 h-5" />
+                      Hanh trinh le
+                    </h3>
+                    <TimelineItem time="07:00 - 08:00" title="Khai mac Convocation Day" description="Khong khi tuong bung tai san truong Dai hoc FPT - Khu Cong Nghe Cao." />
+                    <TimelineItem
+                      time="08:00 - 09:00"
+                      title="Thoi gian chup hinh ly tuong"
+                      description="Anh sang dep nhat de chup anh ky yeu cung gia dinh va ban be."
+                      highlight
+                    />
+                    <TimelineItem
+                      time="09:20 - 09:40"
+                      title="Check-in tan cu nhan (Session 3)"
+                      description="Co mat tai tang 5 Hoi truong A. Sau 09:40 dong check-in."
+                    />
+                    <TimelineItem
+                      time="09:40 - 10:20"
+                      title="Tren san khau le trao bang"
+                      description="Session trao bang va nhan Graduated Kit so 3. Loi vao tang 5, loi ra tang 4."
+                    />
+                    <TimelineItem
+                      time="Sau 11:00"
+                      title="Golden hours chup hinh"
+                      description="Hoi truong mo cua tang 4-5. Nhan qua tot nghiep va chup anh cung nguoi than."
+                      highlight
+                    />
+                  </section>
+
+                  <section className="bg-gradient-to-br from-slate-900 via-indigo-900 to-purple-900 rounded-2xl p-5 sm:p-6 text-white shadow-xl border border-slate-800">
+                    <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
+                      <Heart className="w-5 h-5 text-rose-300" />
+                      Loi nhan tu Phuong
+                    </h3>
+                    <p className="text-sm sm:text-base text-indigo-100">
+                      "Ngay tot nghiep khong chi la cot moc cua rieng minh ma con la thanh qua cua tinh yeu thuong, su day do va dong hanh cua moi nguoi. Mong
+                      duoc nhin thay nu cuoi cua ban tai Dai hoc FPT de chung ta cung nhau viet tiep nhung ky niem that dep."
+                    </p>
+                    <p className="text-sm sm:text-base text-indigo-100 mt-4 italic">— Vu Thi Bich Phuong</p>
+                  </section>
+                </div>
+
+                <div className="pt-4 flex flex-wrap justify-center gap-4">
+                  <button
+                    onClick={() => setIsRSVPModalOpen(true)}
+                    className="group relative px-8 py-4 bg-gradient-to-r from-rose-500 to-pink-500 text-white font-bold rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 overflow-hidden"
+                  >
+                    <span className="relative z-10 flex items-center gap-2">
+                      <Heart className="w-5 h-5 group-hover:animate-heartbeat" />
+                      Xac nhan tham du
+                    </span>
+                    <div className="absolute inset-0 bg-gradient-to-r from-pink-500 to-rose-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  </button>
+
+                  <button
+                    onClick={() => setIsWishesModalOpen(true)}
+                    className="group px-8 py-4 bg-gradient-to-r from-amber-400 to-orange-400 text-white font-bold rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 overflow-hidden"
+                  >
+                    <span className="relative z-10 flex items-center gap-2">
+                      <Sparkles className="w-5 h-5 group-hover:animate-spin" />
+                      Gui loi chuc
+                    </span>
+                  </button>
+                </div>
+
+                <div className="mt-8 pt-6 border-t-2 border-rose-200 text-center space-y-2">
+                  <p className="text-sm text-gray-600">Su hien dien cua ban la mon qua lon nhat doi voi chung toi.</p>
+                  <div className="flex justify-center gap-2">
+                    {[...Array(5)].map((_, index) => (
+                      <Heart key={index} className="w-4 h-4 text-rose-400 animate-heartbeat" style={{ animationDelay: `${index * 0.2}s` }} />
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="text-center mt-8 animate-fade-in-up-delay-3">
+            <p className="text-slate-700 text-lg font-medium drop-shadow-lg">Cam on va hen gap ban tai buoi le!</p>
+          </div>
+        </div>
+      </div>
+
+      <RSVPModal isOpen={isRSVPModalOpen} user={user} onClose={() => setIsRSVPModalOpen(false)} onDecision={handleCeremonyDecision} />
+
+      <DinnerInviteModal
+        isOpen={isDinnerModalOpen}
+        onClose={() => setIsDinnerModalOpen(false)}
+        willAttendCeremony={lastCeremonyDecision}
+        onSelect={handleDinnerChoice}
+        isSaving={isSavingDinnerChoice}
+      />
+
+      <WishesModal
+        isOpen={isWishesModalOpen}
+        onClose={() => setIsWishesModalOpen(false)}
+        currentUserName={user.display_name}
+        currentUserId={user.id}
+        currentUsername={user.username}
+      />
+    </div>
+  );
+}
+
+interface InfoPillProps {
+  icon: ReactNode;
+  title: string;
+  accent: string;
+  children: ReactNode;
+}
+
+function InfoPill({ icon, title, accent, children }: InfoPillProps) {
+  return (
+    <div className="flex flex-col items-center justify-center gap-2 rounded-2xl border border-slate-100 bg-white/90 p-4 text-center shadow">
+      <div className={`inline-flex items-center gap-2 rounded-full bg-gradient-to-r ${accent} px-4 py-1 text-xs font-semibold text-white`}>
+        {icon}
+        <span>{title}</span>
+      </div>
+      <p className="text-base font-medium text-slate-700 text-balance">{children}</p>
+    </div>
+  );
+}
+
+interface TimelineItemProps {
+  time: string;
+  title: string;
+  description: string;
+  highlight?: boolean;
+}
+
+function TimelineItem({ time, title, description, highlight = false }: TimelineItemProps) {
+  return (
+    <div className={`flex gap-4 py-3 ${highlight ? 'bg-gradient-to-r from-indigo-50 to-pink-50 rounded-2xl px-3' : ''}`}>
+      <div className="flex flex-col items-center">
+        <span className="text-xs font-semibold text-indigo-500">{time}</span>
+        <span className="mt-1 h-full w-[2px] bg-gradient-to-b from-indigo-400 to-transparent" />
+      </div>
+      <div>
+        <p className="font-semibold text-slate-800">{title}</p>
+        <p className="text-sm text-slate-600">{description}</p>
+      </div>
+    </div>
+  );
+}
+

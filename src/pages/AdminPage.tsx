@@ -1,6 +1,13 @@
-import { useState, useEffect } from 'react';
-import { ArrowLeft, Users, Download, Loader, AlertCircle } from 'lucide-react';
-import { getRSVPResponses, RSVPResponse } from '../lib/supabase';
+import { useState, useEffect, useMemo } from 'react';
+import { LogOut, Users, AlertCircle, RefreshCcw } from 'lucide-react';
+import {
+  getRSVPResponses,
+  type RSVPResponse,
+  getParticipants,
+  type ParticipantRecord
+} from '../lib/supabase';
+import DashboardTab from '../components/admin/DashboardTab';
+import ParticipantsTab from '../components/admin/ParticipantsTab';
 
 interface AdminPageProps {
   onBack: () => void;
@@ -8,29 +15,58 @@ interface AdminPageProps {
 
 export default function AdminPage({ onBack }: AdminPageProps) {
   const [rsvpList, setRsvpList] = useState<RSVPResponse[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [participants, setParticipants] = useState<ParticipantRecord[]>([]);
+  const [isLoadingRSVP, setIsLoadingRSVP] = useState(true);
+  const [isLoadingParticipants, setIsLoadingParticipants] = useState(true);
   const [error, setError] = useState('');
+  const [participantsError, setParticipantsError] = useState('');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'participants'>('dashboard');
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   useEffect(() => {
-    loadRSVPData();
+    void loadRSVPData();
+    void loadParticipants();
   }, []);
 
   const loadRSVPData = async () => {
     try {
-      setIsLoading(true);
+      setIsLoadingRSVP(true);
       setError('');
       const data = await getRSVPResponses();
       setRsvpList(data || []);
     } catch (err) {
-      setError('Không thể tải dữ liệu. Vui lòng thử lại!');
+      setError('Khong the tai du lieu. Vui long thu lai!');
       console.error(err);
     } finally {
-      setIsLoading(false);
+      setIsLoadingRSVP(false);
     }
   };
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
+  const handleReload = async () => {
+    try {
+      setIsRefreshing(true);
+      await Promise.all([loadRSVPData(), loadParticipants()]);
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
+
+  const loadParticipants = async () => {
+    try {
+      setIsLoadingParticipants(true);
+      setParticipantsError('');
+      const data = await getParticipants();
+      setParticipants(data || []);
+    } catch (err) {
+      setParticipantsError('Khong the tai danh sach nguoi tham gia');
+      console.error(err);
+    } finally {
+      setIsLoadingParticipants(false);
+    }
+  };
+
+  const formatDate = (value: string) => {
+    const date = new Date(value);
     return date.toLocaleDateString('vi-VN', {
       day: '2-digit',
       month: '2-digit',
@@ -40,33 +76,71 @@ export default function AdminPage({ onBack }: AdminPageProps) {
     });
   };
 
-  const totalAttending = rsvpList.filter(r => r.will_attend).reduce((sum, r) => sum + (r.guest_count || 1), 0);
-  const totalConfirmed = rsvpList.filter(r => r.will_attend).length;
+  const ceremonyYes = useMemo(
+    () => participants.filter((participant) => participant.rsvp?.will_attend === true),
+    [participants]
+  );
+  const ceremonyNo = useMemo(
+    () => participants.filter((participant) => participant.rsvp?.will_attend === false),
+    [participants]
+  );
+  const ceremonyPending = useMemo(
+    () =>
+      participants.filter(
+        (participant) =>
+          !participant.rsvp || typeof participant.rsvp.will_attend === 'undefined' || participant.rsvp.will_attend === null
+      ),
+    [participants]
+  );
 
-  const exportToCSV = () => {
-    const headers = ['Họ tên', 'Email', 'Số điện thoại', 'Số người', 'Yêu cầu đặc biệt', 'Xác nhận', 'Thời gian'];
-    const rows = rsvpList.map(r => [
-      r.name,
-      r.email,
-      r.phone || '',
-      r.guest_count,
-      r.dietary_requirements || '',
-      r.will_attend ? 'Có' : 'Không',
-      formatDate(r.created_at || '')
-    ]);
+  const dinnerYesParticipants = useMemo(
+    () =>
+      participants.filter(
+        (participant) => participant.invited_to_dinner && participant.rsvp?.will_attend_dinner === true
+      ),
+    [participants]
+  );
+  const dinnerNoParticipants = useMemo(
+    () =>
+      participants.filter(
+        (participant) => participant.invited_to_dinner && participant.rsvp?.will_attend_dinner === false
+      ),
+    [participants]
+  );
+  const dinnerPendingParticipants = useMemo(
+    () =>
+      participants.filter(
+        (participant) =>
+          participant.invited_to_dinner &&
+          (!participant.rsvp ||
+            typeof participant.rsvp.will_attend_dinner === 'undefined' ||
+            participant.rsvp.will_attend_dinner === null)
+      ),
+    [participants]
+  );
+  const dinnerNotInvitedParticipants = useMemo(
+    () => participants.filter((participant) => !participant.invited_to_dinner),
+    [participants]
+  );
 
-    const csvContent = [
-      headers.join(','),
-      ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
-    ].join('\n');
-
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    const url = URL.createObjectURL(blob);
-    link.setAttribute('href', url);
-    link.setAttribute('download', `danh-sach-xac-nhan-${new Date().toISOString().split('T')[0]}.csv`);
-    link.click();
-  };
+  const totalConfirmed = ceremonyYes.length;
+  const totalDeclined = ceremonyNo.length;
+  const totalPending = ceremonyPending.length;
+  const totalResponses = totalConfirmed + totalDeclined;
+  const totalAttending = ceremonyYes.reduce((sum, participant) => sum + (participant.rsvp?.guest_count || 1), 0);
+  const dinnerYes = dinnerYesParticipants.length;
+  const attendanceRate = totalResponses > 0 ? Math.round((totalConfirmed / totalResponses) * 100) : 0;
+  const recentUpdates = useMemo(
+    () =>
+      [...rsvpList]
+        .sort((a, b) => (b.created_at || '').localeCompare(a.created_at || ''))
+        .slice(0, 5),
+    [rsvpList]
+  );
+  const totalParticipants = participants.length;
+  const ceremonyInviteCount = ceremonyYes.length;
+  const dinnerInviteCount = dinnerYes;
+  const dinnerInviteesCount = participants.filter((p) => p.invited_to_dinner).length;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-400 via-blue-500 to-purple-600 overflow-hidden relative p-4 sm:p-6">
@@ -75,17 +149,44 @@ export default function AdminPage({ onBack }: AdminPageProps) {
           onClick={onBack}
           className="mb-8 flex items-center gap-2 px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-lg backdrop-blur-sm transition-colors"
         >
-          <ArrowLeft className="w-5 h-5" />
-          Quay lại
+          <LogOut className="w-5 h-5" />
+          Dang xuat
         </button>
 
         <div className="bg-white/95 backdrop-blur-lg rounded-3xl shadow-2xl overflow-hidden border-4 border-white/50">
           <div className="p-8 border-b bg-gradient-to-r from-blue-50 to-purple-50">
-            <div className="flex items-center gap-3 mb-2">
-              <Users className="w-8 h-8 text-blue-600" />
-              <h1 className="text-3xl font-bold text-gray-800">Danh Sách Xác Nhận Tham Dự</h1>
+            <div className="flex items-center justify-between gap-4 mb-2">
+              <div className="flex items-center gap-3">
+                <Users className="w-8 h-8 text-blue-600" />
+                <h1 className="text-3xl font-bold text-gray-800">Quan tri tham du le tot nghiep</h1>
+              </div>
+              <button
+                onClick={handleReload}
+                disabled={isRefreshing}
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white text-blue-600 font-semibold shadow hover:bg-blue-50 disabled:opacity-60"
+              >
+                <RefreshCcw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+                Tai lai
+              </button>
             </div>
-            <p className="text-gray-600">Quản lý danh sách khách mời đã xác nhận</p>
+            <p className="text-gray-600">Theo doi trang thai khach moi va danh sach chi tiet</p>
+
+            <div className="mt-6 inline-flex rounded-full bg-white/70 p-1 shadow-inner">
+              {[
+                { key: 'dashboard', label: 'Dashboard tong quan' },
+                { key: 'participants', label: 'Quan ly nguoi tham gia' }
+              ].map((tab) => (
+                <button
+                  key={tab.key}
+                  onClick={() => setActiveTab(tab.key as 'dashboard' | 'participants')}
+                  className={`px-4 py-2 rounded-full text-sm font-semibold transition ${
+                    activeTab === tab.key ? 'bg-blue-600 text-white shadow' : 'text-gray-600 hover:text-gray-900'
+                  }`}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
           </div>
 
           <div className="p-8">
@@ -96,95 +197,41 @@ export default function AdminPage({ onBack }: AdminPageProps) {
               </div>
             )}
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
-              <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-6 rounded-xl border-2 border-blue-200">
-                <p className="text-sm text-blue-600 font-semibold mb-1">Tổng xác nhận</p>
-                <p className="text-3xl font-bold text-blue-700">{totalConfirmed}</p>
-              </div>
-              <div className="bg-gradient-to-br from-green-50 to-green-100 p-6 rounded-xl border-2 border-green-200">
-                <p className="text-sm text-green-600 font-semibold mb-1">Tổng khách</p>
-                <p className="text-3xl font-bold text-green-700">{totalAttending}</p>
-              </div>
-              <div className="bg-gradient-to-br from-purple-50 to-purple-100 p-6 rounded-xl border-2 border-purple-200">
-                <p className="text-sm text-purple-600 font-semibold mb-1">Trung bình/người</p>
-                <p className="text-3xl font-bold text-purple-700">
-                  {totalConfirmed > 0 ? (totalAttending / totalConfirmed).toFixed(1) : '0'}
-                </p>
-              </div>
-            </div>
-
-            {totalConfirmed > 0 && (
-              <button
-                onClick={exportToCSV}
-                className="mb-6 flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-500 text-white font-semibold rounded-lg hover:shadow-lg transition-shadow"
-              >
-                <Download className="w-5 h-5" />
-                Tải xuống CSV
-              </button>
-            )}
-
-            {isLoading ? (
-              <div className="text-center py-12">
-                <Loader className="w-8 h-8 text-blue-600 animate-spin mx-auto mb-4" />
-                <p className="text-gray-600">Đang tải dữ liệu...</p>
-              </div>
-            ) : rsvpList.length === 0 ? (
-              <div className="text-center py-12 text-gray-500">
-                <Users className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-                <p>Chưa có ai xác nhận tham dự</p>
-              </div>
+            {activeTab === 'dashboard' ? (
+              <DashboardTab
+                totalResponses={totalResponses}
+                totalConfirmed={totalConfirmed}
+                totalDeclined={totalDeclined}
+                totalPending={totalPending}
+                totalAttending={totalAttending}
+                attendanceRate={attendanceRate}
+                ceremonyInviteCount={ceremonyInviteCount}
+                dinnerInviteCount={dinnerInviteCount}
+                totalParticipants={totalParticipants}
+                dinnerInviteesCount={dinnerInviteesCount}
+                ceremonyYes={ceremonyYes}
+                ceremonyNo={ceremonyNo}
+                ceremonyPending={ceremonyPending}
+                dinnerYesParticipants={dinnerYesParticipants}
+                dinnerNoParticipants={dinnerNoParticipants}
+                dinnerPendingParticipants={dinnerPendingParticipants}
+                dinnerNotInvitedParticipants={dinnerNotInvitedParticipants}
+                recentUpdates={recentUpdates}
+                formatDate={formatDate}
+              />
             ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="bg-gradient-to-r from-blue-100 to-purple-100 border-b-2 border-blue-200">
-                      <th className="px-6 py-4 text-left font-bold text-gray-800">Họ tên</th>
-                      <th className="px-6 py-4 text-left font-bold text-gray-800">Email</th>
-                      <th className="px-6 py-4 text-left font-bold text-gray-800">Số ĐT</th>
-                      <th className="px-6 py-4 text-center font-bold text-gray-800">Số người</th>
-                      <th className="px-6 py-4 text-left font-bold text-gray-800">Yêu cầu đặc biệt</th>
-                      <th className="px-6 py-4 text-center font-bold text-gray-800">Xác nhận</th>
-                      <th className="px-6 py-4 text-left font-bold text-gray-800">Thời gian</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {rsvpList.map((rsvp, index) => (
-                      <tr
-                        key={rsvp.id || index}
-                        className={`border-b transition-colors ${
-                          index % 2 === 0 ? 'bg-white hover:bg-blue-50' : 'bg-gray-50 hover:bg-blue-100'
-                        }`}
-                      >
-                        <td className="px-6 py-4 font-semibold text-gray-800">{rsvp.name}</td>
-                        <td className="px-6 py-4 text-gray-700">{rsvp.email}</td>
-                        <td className="px-6 py-4 text-gray-700">{rsvp.phone || '-'}</td>
-                        <td className="px-6 py-4 text-center">
-                          <span className="inline-flex items-center justify-center w-8 h-8 bg-blue-100 text-blue-700 font-bold rounded-full">
-                            {rsvp.guest_count}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 text-gray-700 text-sm max-w-xs truncate" title={rsvp.dietary_requirements}>
-                          {rsvp.dietary_requirements || '-'}
-                        </td>
-                        <td className="px-6 py-4 text-center">
-                          <span
-                            className={`inline-block px-4 py-2 rounded-full font-semibold text-sm ${
-                              rsvp.will_attend
-                                ? 'bg-green-100 text-green-700'
-                                : 'bg-red-100 text-red-700'
-                            }`}
-                          >
-                            {rsvp.will_attend ? 'Có' : 'Không'}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 text-gray-600 text-sm">
-                          {rsvp.created_at ? formatDate(rsvp.created_at) : '-'}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+              <>
+                {participantsError && (
+                  <div className="mb-4 p-3 bg-amber-50 border border-amber-100 text-sm text-amber-700 rounded-xl">
+                    {participantsError}
+                  </div>
+                )}
+                <ParticipantsTab
+                  participants={participants}
+                  isLoading={isLoadingParticipants || isLoadingRSVP}
+                  onRefresh={loadParticipants}
+                />
+              </>
             )}
           </div>
         </div>
