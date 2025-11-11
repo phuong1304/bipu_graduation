@@ -1,6 +1,6 @@
-import { useState } from 'react';
-import { X, Heart, Loader } from 'lucide-react';
-import { submitRSVP, type RSVPResponse, type AppUser } from '../lib/supabase';
+import { useState } from "react";
+import { X, Heart, Loader } from "lucide-react";
+import { submitRSVP, type RSVPResponse, type AppUser } from "../lib/supabase";
 
 interface RSVPModalProps {
   isOpen: boolean;
@@ -9,18 +9,25 @@ interface RSVPModalProps {
   user: AppUser;
 }
 
-export default function RSVPModal({ isOpen, onClose, onDecision, user }: RSVPModalProps) {
-  const [submittingChoice, setSubmittingChoice] = useState<'yes' | 'no' | null>(null);
-  const [error, setError] = useState('');
+export default function RSVPModal({
+  isOpen,
+  onClose,
+  onDecision,
+  user,
+}: RSVPModalProps) {
+  const [submittingChoice, setSubmittingChoice] = useState<"yes" | "no" | null>(
+    null
+  );
+  const [error, setError] = useState("");
 
   if (!isOpen) return null;
 
   const handleDecision = async (willAttend: boolean) => {
-    setSubmittingChoice(willAttend ? 'yes' : 'no');
-    setError('');
+    setSubmittingChoice(willAttend ? "yes" : "no");
+    setError("");
 
     if (!user.id) {
-      setError('Thông tin người dùng không hợp lệ. Vui lòng đăng nhập lại.');
+      setError("Thông tin người dùng không hợp lệ. Vui lòng đăng nhập lại.");
       setSubmittingChoice(null);
       return;
     }
@@ -29,18 +36,18 @@ export default function RSVPModal({ isOpen, onClose, onDecision, user }: RSVPMod
       user_id: user.id,
       name: user.display_name,
       email: user.email,
-      phone: '',
+      phone: "",
       will_attend: willAttend,
       guest_count: 1,
-      dietary_requirements: '',
-      created_at: new Date().toISOString()
+      dietary_requirements: "",
+      created_at: new Date().toISOString(),
     };
 
     try {
       await submitRSVP(payload);
       onDecision(willAttend);
     } catch (err) {
-      setError('Đã có lỗi xảy ra. Vui lòng thử lại!');
+      setError("Đã có lỗi xảy ra. Vui lòng thử lại!");
       console.error(err);
     } finally {
       setSubmittingChoice(null);
@@ -49,7 +56,10 @@ export default function RSVPModal({ isOpen, onClose, onDecision, user }: RSVPMod
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-fade-in">
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose}></div>
+      <div
+        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+        onClick={onClose}
+      ></div>
 
       <div className="relative bg-gradient-to-br from-indigo-50 via-white to-pink-50 border border-indigo-100 rounded-2xl shadow-2xl max-w-md w-full animate-scale-in">
         <button
@@ -66,7 +76,8 @@ export default function RSVPModal({ isOpen, onClose, onDecision, user }: RSVPMod
               Mời dự lễ tốt nghiệp
             </h2>
             <p className="text-slate-600 mt-2">
-              Hãy cho chúng tôi biết bạn có thể tham gia buổi lễ ngày 20/11 không nhé.
+              Hãy cho Phương biết bạn có thể tham gia buổi lễ ngày 20/11 không
+              nhé.
             </p>
           </div>
 
@@ -76,13 +87,13 @@ export default function RSVPModal({ isOpen, onClose, onDecision, user }: RSVPMod
               onClick={() => handleDecision(true)}
               className="w-full py-4 bg-gradient-to-r from-indigo-600 to-purple-500 text-white font-bold rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
             >
-              {submittingChoice === 'yes' ? (
+              {submittingChoice === "yes" ? (
                 <span className="flex items-center justify-center gap-2">
                   <Loader className="w-5 h-5 animate-spin" />
                   Đang gửi...
                 </span>
               ) : (
-                'Tôi sẽ tham gia buổi lễ'
+                "Tôi sẽ tham gia buổi lễ"
               )}
             </button>
 
@@ -91,13 +102,13 @@ export default function RSVPModal({ isOpen, onClose, onDecision, user }: RSVPMod
               onClick={() => handleDecision(false)}
               className="w-full py-4 border-2 border-indigo-100 text-indigo-600 font-bold rounded-lg hover:bg-indigo-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {submittingChoice === 'no' ? (
+              {submittingChoice === "no" ? (
                 <span className="flex items-center justify-center gap-2">
                   <Loader className="w-5 h-5 animate-spin" />
                   Đang gửi...
                 </span>
               ) : (
-                'Không thể tham gia được'
+                "Không thể tham gia được"
               )}
             </button>
           </div>

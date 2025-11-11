@@ -1,4 +1,4 @@
-import { X, Utensils, Smile, MapPin, Clock } from 'lucide-react';
+import { X, Utensils, Smile, MapPin, Clock } from "lucide-react";
 
 interface DinnerInviteModalProps {
   isOpen: boolean;
@@ -6,6 +6,7 @@ interface DinnerInviteModalProps {
   onClose: () => void;
   onSelect: (attending: boolean) => void;
   isSaving?: boolean;
+  friendlyName?: string;
 }
 
 export default function DinnerInviteModal({
@@ -13,13 +14,17 @@ export default function DinnerInviteModal({
   willAttendCeremony,
   onClose,
   onSelect,
-  isSaving
+  isSaving,
+  friendlyName,
 }: DinnerInviteModalProps) {
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-fade-in">
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose}></div>
+      <div
+        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+        onClick={onClose}
+      ></div>
 
       <div className="relative bg-gradient-to-br from-amber-50 via-white to-orange-50 border border-amber-100 rounded-2xl shadow-2xl max-w-lg w-full animate-scale-in">
         <button
@@ -33,10 +38,16 @@ export default function DinnerInviteModal({
           <div className="text-center mb-6 space-y-2">
             <Utensils className="w-12 h-12 text-amber-500 mx-auto mb-3" />
             <h2 className="text-3xl font-bold bg-gradient-to-r from-amber-500 to-orange-500 bg-clip-text text-transparent">
-              Mời dự tiệc chúc mừng
+              Mời dự tiệc thân mật
             </h2>
             <p className="text-gray-600 mt-2">
-              Sau buổi lễ, chúng tôi sẽ có tiệc thân mật cùng gia đình và bạn bè.
+              Sau buổi lễ, Phương sẽ có tiệc thân mật cùng gia đình và bạn bè.
+              Và{" "}
+              <strong className="font-semibold text-rose-500">
+                {friendlyName || "Bạn"}
+              </strong>{" "}
+              là một phần không thể thiếu trong buổi tiệc này. Rất mong có sự
+              góp mặt chung vui của bạn tới chung vui với Phương và gia đình!
             </p>
           </div>
 
@@ -51,8 +62,12 @@ export default function DinnerInviteModal({
                 <MapPin className="w-5 h-5 text-amber-600" />
                 <span>Địa điểm</span>
               </div>
-              <p className="text-sm font-semibold leading-relaxed">Hải Sản Út Linh 2</p>
-              <p className="text-xs font-semibold text-amber-500">Nhấn để mở Google Maps</p>
+              <p className="text-sm font-semibold leading-relaxed">
+                Hải Sản Út Linh 2
+              </p>
+              <p className="text-xs font-semibold text-amber-500">
+                Nhấn để mở Google Maps
+              </p>
             </a>
             <div className="flex flex-col gap-2 rounded-2xl border border-amber-100 bg-gradient-to-br from-white via-amber-50 to-white p-4">
               <div className="flex items-center gap-2 font-semibold text-amber-900">
@@ -63,9 +78,12 @@ export default function DinnerInviteModal({
             </div>
           </div>
           <p className="text-sm text-amber-700 mb-6">
-            {willAttendCeremony === null && 'Hãy cùng nhau tạo nên một buổi tối ấm áp nhé!'}
-            {willAttendCeremony === true && 'Cảm ơn bạn đã nhận lời dự lễ. Mong được gặp bạn tại buổi tiệc thân mật này.'}
-            {willAttendCeremony === false && 'Dù bạn không thể dự lễ, chúng tôi vẫn hy vọng bạn đến chung vui trong buổi tiệc.'}
+            {willAttendCeremony === null &&
+              "Hãy cùng nhau tạo nên một buổi tối ấm áp nhé!"}
+            {willAttendCeremony === true &&
+              "Cảm ơn bạn đã nhận lời dự lễ. Mong được gặp bạn tại buổi tiệc thân mật này."}
+            {willAttendCeremony === false &&
+              "Dù bạn không thể dự lễ, Phương vẫn hy vọng bạn đến chung vui trong buổi tiệc."}
           </p>
 
           <div className="flex flex-col sm:flex-row gap-3">

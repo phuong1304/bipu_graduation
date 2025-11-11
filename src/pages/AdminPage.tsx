@@ -1,13 +1,13 @@
-import { useState, useEffect, useMemo } from 'react';
-import { LogOut, Users, AlertCircle, RefreshCcw } from 'lucide-react';
+import { useState, useEffect, useMemo } from "react";
+import { LogOut, Users, AlertCircle, RefreshCcw } from "lucide-react";
 import {
   getRSVPResponses,
   type RSVPResponse,
   getParticipants,
-  type ParticipantRecord
-} from '../lib/supabase';
-import DashboardTab from '../components/admin/DashboardTab';
-import ParticipantsTab from '../components/admin/ParticipantsTab';
+  type ParticipantRecord,
+} from "../lib/supabase";
+import DashboardTab from "../components/admin/DashboardTab";
+import ParticipantsTab from "../components/admin/ParticipantsTab";
 
 interface AdminPageProps {
   onBack: () => void;
@@ -18,9 +18,11 @@ export default function AdminPage({ onBack }: AdminPageProps) {
   const [participants, setParticipants] = useState<ParticipantRecord[]>([]);
   const [isLoadingRSVP, setIsLoadingRSVP] = useState(true);
   const [isLoadingParticipants, setIsLoadingParticipants] = useState(true);
-  const [error, setError] = useState('');
-  const [participantsError, setParticipantsError] = useState('');
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'participants'>('dashboard');
+  const [error, setError] = useState("");
+  const [participantsError, setParticipantsError] = useState("");
+  const [activeTab, setActiveTab] = useState<"dashboard" | "participants">(
+    "dashboard"
+  );
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   useEffect(() => {
@@ -31,11 +33,11 @@ export default function AdminPage({ onBack }: AdminPageProps) {
   const loadRSVPData = async () => {
     try {
       setIsLoadingRSVP(true);
-      setError('');
+      setError("");
       const data = await getRSVPResponses();
       setRsvpList(data || []);
     } catch (err) {
-      setError('Khong the tai du lieu. Vui long thu lai!');
+      setError("Khong the tai du lieu. Vui long thu lai!");
       console.error(err);
     } finally {
       setIsLoadingRSVP(false);
@@ -54,11 +56,11 @@ export default function AdminPage({ onBack }: AdminPageProps) {
   const loadParticipants = async () => {
     try {
       setIsLoadingParticipants(true);
-      setParticipantsError('');
+      setParticipantsError("");
       const data = await getParticipants();
       setParticipants(data || []);
     } catch (err) {
-      setParticipantsError('Khong the tai danh sach nguoi tham gia');
+      setParticipantsError("Khong the tai danh sach nguoi tham gia");
       console.error(err);
     } finally {
       setIsLoadingParticipants(false);
@@ -67,28 +69,36 @@ export default function AdminPage({ onBack }: AdminPageProps) {
 
   const formatDate = (value: string) => {
     const date = new Date(value);
-    return date.toLocaleDateString('vi-VN', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
+    return date.toLocaleDateString("vi-VN", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
     });
   };
 
   const ceremonyYes = useMemo(
-    () => participants.filter((participant) => participant.rsvp?.will_attend === true),
+    () =>
+      participants.filter(
+        (participant) => participant.rsvp?.will_attend === true
+      ),
     [participants]
   );
   const ceremonyNo = useMemo(
-    () => participants.filter((participant) => participant.rsvp?.will_attend === false),
+    () =>
+      participants.filter(
+        (participant) => participant.rsvp?.will_attend === false
+      ),
     [participants]
   );
   const ceremonyPending = useMemo(
     () =>
       participants.filter(
         (participant) =>
-          !participant.rsvp || typeof participant.rsvp.will_attend === 'undefined' || participant.rsvp.will_attend === null
+          !participant.rsvp ||
+          typeof participant.rsvp.will_attend === "undefined" ||
+          participant.rsvp.will_attend === null
       ),
     [participants]
   );
@@ -96,14 +106,18 @@ export default function AdminPage({ onBack }: AdminPageProps) {
   const dinnerYesParticipants = useMemo(
     () =>
       participants.filter(
-        (participant) => participant.invited_to_dinner && participant.rsvp?.will_attend_dinner === true
+        (participant) =>
+          participant.invited_to_dinner &&
+          participant.rsvp?.will_attend_dinner === true
       ),
     [participants]
   );
   const dinnerNoParticipants = useMemo(
     () =>
       participants.filter(
-        (participant) => participant.invited_to_dinner && participant.rsvp?.will_attend_dinner === false
+        (participant) =>
+          participant.invited_to_dinner &&
+          participant.rsvp?.will_attend_dinner === false
       ),
     [participants]
   );
@@ -113,7 +127,7 @@ export default function AdminPage({ onBack }: AdminPageProps) {
         (participant) =>
           participant.invited_to_dinner &&
           (!participant.rsvp ||
-            typeof participant.rsvp.will_attend_dinner === 'undefined' ||
+            typeof participant.rsvp.will_attend_dinner === "undefined" ||
             participant.rsvp.will_attend_dinner === null)
       ),
     [participants]
@@ -127,20 +141,28 @@ export default function AdminPage({ onBack }: AdminPageProps) {
   const totalDeclined = ceremonyNo.length;
   const totalPending = ceremonyPending.length;
   const totalResponses = totalConfirmed + totalDeclined;
-  const totalAttending = ceremonyYes.reduce((sum, participant) => sum + (participant.rsvp?.guest_count || 1), 0);
+  const totalAttending = ceremonyYes.reduce(
+    (sum, participant) => sum + (participant.rsvp?.guest_count || 1),
+    0
+  );
   const dinnerYes = dinnerYesParticipants.length;
-  const attendanceRate = totalResponses > 0 ? Math.round((totalConfirmed / totalResponses) * 100) : 0;
+  const attendanceRate =
+    totalResponses > 0
+      ? Math.round((totalConfirmed / totalResponses) * 100)
+      : 0;
   const recentUpdates = useMemo(
     () =>
       [...rsvpList]
-        .sort((a, b) => (b.created_at || '').localeCompare(a.created_at || ''))
+        .sort((a, b) => (b.created_at || "").localeCompare(a.created_at || ""))
         .slice(0, 5),
     [rsvpList]
   );
   const totalParticipants = participants.length;
   const ceremonyInviteCount = ceremonyYes.length;
   const dinnerInviteCount = dinnerYes;
-  const dinnerInviteesCount = participants.filter((p) => p.invited_to_dinner).length;
+  const dinnerInviteesCount = participants.filter(
+    (p) => p.invited_to_dinner
+  ).length;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-400 via-blue-500 to-purple-600 overflow-hidden relative p-4 sm:p-6">
@@ -158,29 +180,39 @@ export default function AdminPage({ onBack }: AdminPageProps) {
             <div className="flex items-center justify-between gap-4 mb-2">
               <div className="flex items-center gap-3">
                 <Users className="w-8 h-8 text-blue-600" />
-                <h1 className="text-3xl font-bold text-gray-800">Quan tri tham du le tot nghiep</h1>
+                <h1 className="text-3xl font-bold text-gray-800">
+                  Quan tri tham du le tot nghiep
+                </h1>
               </div>
               <button
                 onClick={handleReload}
                 disabled={isRefreshing}
                 className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white text-blue-600 font-semibold shadow hover:bg-blue-50 disabled:opacity-60"
               >
-                <RefreshCcw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+                <RefreshCcw
+                  className={`w-4 h-4 ${isRefreshing ? "animate-spin" : ""}`}
+                />
                 Tai lai
               </button>
             </div>
-            <p className="text-gray-600">Theo doi trang thai khach moi va danh sach chi tiet</p>
+            <p className="text-gray-600">
+              Theo doi trang thai khach moi va danh sach chi tiet
+            </p>
 
             <div className="mt-6 inline-flex rounded-full bg-white/70 p-1 shadow-inner">
               {[
-                { key: 'dashboard', label: 'Dashboard tong quan' },
-                { key: 'participants', label: 'Quan ly nguoi tham gia' }
+                { key: "dashboard", label: "Dashboard tong quan" },
+                { key: "participants", label: "Quan ly nguoi tham gia" },
               ].map((tab) => (
                 <button
                   key={tab.key}
-                  onClick={() => setActiveTab(tab.key as 'dashboard' | 'participants')}
+                  onClick={() =>
+                    setActiveTab(tab.key as "dashboard" | "participants")
+                  }
                   className={`px-4 py-2 rounded-full text-sm font-semibold transition ${
-                    activeTab === tab.key ? 'bg-blue-600 text-white shadow' : 'text-gray-600 hover:text-gray-900'
+                    activeTab === tab.key
+                      ? "bg-blue-600 text-white shadow"
+                      : "text-gray-600 hover:text-gray-900"
                   }`}
                 >
                   {tab.label}
@@ -197,7 +229,7 @@ export default function AdminPage({ onBack }: AdminPageProps) {
               </div>
             )}
 
-            {activeTab === 'dashboard' ? (
+            {activeTab === "dashboard" ? (
               <DashboardTab
                 totalResponses={totalResponses}
                 totalConfirmed={totalConfirmed}

@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react';
-import { X, Sparkles, Loader, MessageCircle } from 'lucide-react';
-import { submitWish, getWishes, Wish } from '../lib/supabase';
-import Reactions from './Reactions';
+import { useEffect, useState } from "react";
+import { X, Sparkles, Loader, MessageCircle, RotateCcw } from "lucide-react";
+import { submitWish, getWishes, Wish } from "../lib/supabase";
+import Reactions from "./Reactions";
 
 interface WishesModalProps {
   isOpen: boolean;
@@ -11,29 +11,41 @@ interface WishesModalProps {
   currentUsername?: string;
 }
 
-export default function WishesModal({ isOpen, onClose, currentUserName, currentUserId }: WishesModalProps) {
+export default function WishesModal({
+  isOpen,
+  onClose,
+  currentUserName,
+  currentUserId,
+}: WishesModalProps) {
   const [formData, setFormData] = useState<Wish>({
     name: currentUserName,
-    message: ''
+    message: "",
+    user_id: "",
   });
   const [wishes, setWishes] = useState<Wish[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [isLoadingWishes, setIsLoadingWishes] = useState(true);
   const [browserSessionId] = useState(() => {
-    const stored = localStorage.getItem('wish_session_id');
+    const stored = localStorage.getItem("wish_session_id");
     if (stored) return stored;
-    const id = `session_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`;
-    localStorage.setItem('wish_session_id', id);
+    const id = `session_${Date.now()}_${Math.random()
+      .toString(36)
+      .substring(2, 11)}`;
+    localStorage.setItem("wish_session_id", id);
     return id;
   });
-  const reactionSessionId = currentUserId ? `${currentUserId}-${browserSessionId}` : browserSessionId;
+  const reactionSessionId = currentUserId
+    ? `${currentUserId}-${browserSessionId}`
+    : browserSessionId;
   const [sessionId] = useState(() => {
-    const stored = localStorage.getItem('wish_session_id');
+    const stored = localStorage.getItem("wish_session_id");
     if (stored) return stored;
-    const id = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    localStorage.setItem('wish_session_id', id);
+    const id = `session_${Date.now()}_${Math.random()
+      .toString(36)
+      .substr(2, 9)}`;
+    localStorage.setItem("wish_session_id", id);
     return id;
   });
 
@@ -44,8 +56,14 @@ export default function WishesModal({ isOpen, onClose, currentUserName, currentU
   }, [isOpen]);
 
   useEffect(() => {
-    setFormData((prev) => ({ ...prev, name: currentUserName }));
-  }, [currentUserName]);
+    if (isOpen) {
+      setFormData({
+        name: currentUserName,
+        message: "",
+        user_id: currentUserId || "",
+      });
+    }
+  }, [isOpen, currentUserId, currentUserName]);
 
   const loadWishes = async () => {
     try {
@@ -53,7 +71,7 @@ export default function WishesModal({ isOpen, onClose, currentUserName, currentU
       const data = await getWishes();
       setWishes(data || []);
     } catch (err) {
-      console.error('Error loading wishes:', err);
+      console.error("Error loading wishes:", err);
     } finally {
       setIsLoadingWishes(false);
     }
@@ -64,18 +82,25 @@ export default function WishesModal({ isOpen, onClose, currentUserName, currentU
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     setIsSubmitting(true);
-    setError('');
+    setError("");
 
     try {
-      await submitWish(formData);
+      // ✅ Gắn user_id vào formData trước khi gửi
+      const payload: Wish = {
+        ...formData,
+        user_id: currentUserId || "", // nếu có user_id thì truyền
+        name: currentUserName, // đảm bảo đồng bộ với tên hiện tại
+      };
+
+      await submitWish(payload);
       setSubmitSuccess(true);
       await loadWishes();
       setTimeout(() => {
         setSubmitSuccess(false);
-        setFormData({ name: currentUserName, message: '' });
+        setFormData({ name: currentUserName, message: "", user_id: "" });
       }, 1800);
     } catch (err) {
-      setError('Đã có lỗi xảy ra. Vui lòng thử lại!');
+      setError("Đã có lỗi xảy ra. Vui lòng thử lại!");
       console.error(err);
     } finally {
       setIsSubmitting(false);
@@ -89,18 +114,25 @@ export default function WishesModal({ isOpen, onClose, currentUserName, currentU
 
   const formatDate = (value: string) => {
     const date = new Date(value);
-    return date.toLocaleDateString('vi-VN', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
+    return date.toLocaleDateString("vi-VN", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
     });
   };
 
+  const hasSentWish = wishes.some(
+    (wish) => wish.user_id?.trim() === currentUserId?.trim()
+  );
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-fade-in">
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose}></div>
+      <div
+        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+        onClick={onClose}
+      ></div>
 
       <div className="relative bg-gradient-to-br from-rose-50 via-white to-pink-50 border border-rose-100 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden animate-scale-in flex flex-col">
         <button
@@ -117,7 +149,7 @@ export default function WishesModal({ isOpen, onClose, currentUserName, currentU
               Gửi lời chúc
             </h2>
             <p className="text-rose-500 mt-2">
-              Lưu giữ những lời chúc đẹp nhất cho lễ tốt nghiệp.
+              Hãy cùng lưu giữ những lời chúc đẹp nhất cho Bích Phương nhé!.
             </p>
           </div>
         </div>
@@ -128,8 +160,12 @@ export default function WishesModal({ isOpen, onClose, currentUserName, currentU
               <div className="w-16 h-16 bg-rose-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Sparkles className="w-8 h-8 text-rose-500" />
               </div>
-              <h3 className="text-2xl font-bold text-rose-600 mb-2">Cảm ơn bạn!</h3>
-              <p className="text-rose-500">Lời chúc của bạn đã được gửi thành công.</p>
+              <h3 className="text-2xl font-bold text-rose-600 mb-2">
+                Cảm ơn bạn!
+              </h3>
+              <p className="text-rose-500">
+                Lời chúc của bạn đã được gửi thành công.
+              </p>
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-4 mb-8">
@@ -165,7 +201,7 @@ export default function WishesModal({ isOpen, onClose, currentUserName, currentU
 
               <button
                 type="submit"
-                disabled={isSubmitting}
+                disabled={isSubmitting || hasSentWish}
                 className="w-full py-4 bg-gradient-to-r from-rose-500 to-pink-500 text-white font-bold rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
               >
                 {isSubmitting ? (
@@ -174,17 +210,43 @@ export default function WishesModal({ isOpen, onClose, currentUserName, currentU
                     Đang gửi...
                   </span>
                 ) : (
-                  'Gửi lời chúc'
+                  "Gửi lời chúc"
                 )}
               </button>
             </form>
           )}
 
           <div className="border-t pt-6">
-            <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-              <MessageCircle className="w-5 h-5 text-rose-500" />
-              Lời chúc từ mọi người
-            </h3>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2">
+                <MessageCircle className="w-5 h-5 text-rose-500" />
+                Lời chúc từ mọi người tới Phương
+                <span className="text-sm font-normal text-gray-500">
+                  ({wishes.length} lời chúc)
+                </span>
+              </h3>
+
+              {/* Nút tải lại danh sách */}
+              <button
+                onClick={loadWishes}
+                disabled={isLoadingWishes}
+                className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-rose-200 text-rose-600 hover:bg-rose-50 transition disabled:opacity-50"
+                title="Tải lại danh sách lời chúc"
+              >
+                {isLoadingWishes ? (
+                  <Loader className="w-4 h-4 animate-spin" />
+                ) : (
+                  <RotateCcw
+                    className={`w-4 h-4 ${
+                      isLoadingWishes
+                        ? "animate-spin text-rose-400"
+                        : "text-rose-500"
+                    } transition-colors`}
+                  />
+                )}
+                <span className="text-sm font-medium">Tải lại</span>
+              </button>
+            </div>
 
             {isLoadingWishes ? (
               <div className="text-center py-8">
@@ -204,10 +266,14 @@ export default function WishesModal({ isOpen, onClose, currentUserName, currentU
                     <div className="flex items-start justify-between mb-2">
                       <p className="font-semibold text-gray-800">{wish.name}</p>
                       {wish.created_at && (
-                        <p className="text-xs text-gray-500">{formatDate(wish.created_at)}</p>
+                        <p className="text-xs text-gray-500">
+                          {formatDate(wish.created_at)}
+                        </p>
                       )}
                     </div>
-                    <p className="text-gray-700 whitespace-pre-wrap">{wish.message}</p>
+                    <p className="text-gray-700 whitespace-pre-wrap">
+                      {wish.message}
+                    </p>
                     {wish.id && (
                       <Reactions
                         wishId={wish.id}

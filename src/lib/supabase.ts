@@ -29,6 +29,7 @@ export interface Wish {
   name: string;
   message: string;
   created_at?: string;
+  user_id:string
 }
 
 export interface WishReaction {
@@ -96,9 +97,17 @@ export async function submitRSVP(rsvp: RSVPResponse) {
 }
 
 export async function submitWish(wish: Wish) {
+  // Nếu người dùng đã đăng nhập (có user_id), thêm thông tin đầy đủ
+  const payload = {
+    ...wish,
+    user_id: wish.user_id , // có thể null nếu là khách
+    name: wish.name?.trim() || "Khách",
+    created_at: new Date().toISOString(),
+  };
+
   const { data, error } = await supabase
-    .from('wishes')
-    .insert([wish])
+    .from("wishes")
+    .insert([payload])
     .select()
     .maybeSingle();
 
@@ -115,6 +124,16 @@ export async function getWishes() {
   if (error) throw error;
   return data;
 }
+
+export async function deleteWish(wishId: string) {
+  const { error } = await supabase
+    .from("wishes")
+    .delete()
+    .eq("id", wishId);
+
+  if (error) throw error;
+}
+
 
 export async function getRSVPResponses() {
   const { data, error } = await supabase
