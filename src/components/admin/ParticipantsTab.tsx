@@ -422,7 +422,7 @@ export default function ParticipantsTab({
                 }))
               }
               className="w-full rounded-xl border border-gray-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white"
-              placeholder="Vi du: nhuthm (se tu sinh neu de trong)"
+              placeholder="Vi du: hainv (se tu sinh neu de trong)"
             />
           </div>
           <label className="inline-flex items-center gap-2 text-sm font-semibold text-gray-700 md:col-span-2">

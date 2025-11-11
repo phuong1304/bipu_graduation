@@ -250,8 +250,8 @@ export default function ParticipantLoginPage({
                         <Info className="w-4 h-4 flex-shrink-0 text-indigo-400" />
                         <span>
                           Username nên được tạo từ họ tên hoặc người gửi cấp (ví
-                          dụ Hoàng Minh Nhựt →{" "}
-                          <span className="font-mono">nhuthm</span>)
+                          dụ Nguyễn Văn Hải →{" "}
+                          <span className="font-mono">hainv</span>)
                         </span>
                       </p>
                     </div>
