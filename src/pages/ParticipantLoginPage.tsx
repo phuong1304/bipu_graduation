@@ -55,6 +55,40 @@ export default function ParticipantLoginPage({
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     setError("");
+
+    const trimmed = username.trim();
+
+    // ❌ 1. Kiểm tra rỗng
+    if (!trimmed) {
+      setError("Vui lòng nhập username của bạn.");
+      return;
+    }
+
+    // ❌ 2. Không chứa khoảng trắng
+    if (/\s/.test(trimmed)) {
+      setError("Username không được chứa khoảng trắng.");
+      return;
+    }
+
+    // ❌ 3. Không chứa emoji / ký tự đặc biệt
+    if (!/^[a-zA-Z0-9._]+$/.test(trimmed)) {
+      setError(
+        "Username chỉ được chứa chữ cái, số, dấu chấm hoặc gạch dưới (_)."
+      );
+      return;
+    }
+
+    // ❌ 4. Không toàn số
+    if (/^\d+$/.test(trimmed)) {
+      setError("Username không thể chỉ toàn số.");
+      return;
+    }
+
+    // ❌ 5. Không quá ngắn hoặc quá dài
+    if (trimmed.length < 3 || trimmed.length > 20) {
+      setError("Username phải dài từ 3–20 ký tự.");
+      return;
+    }
     const normalizedUsername = username.trim().toLowerCase();
 
     if (!normalizedUsername) {
@@ -202,7 +236,7 @@ export default function ParticipantLoginPage({
                   <form className="space-y-5" onSubmit={handleSubmit}>
                     <div>
                       <label className="text-sm font-semibold text-slate-700 mb-2 block">
-                        Tên người tham gia
+                        Username người trải nghiệm
                       </label>
                       <input
                         type="text"
@@ -215,7 +249,8 @@ export default function ParticipantLoginPage({
                       <p className="text-xs text-slate-500 flex items-center gap-2 mt-2">
                         <Info className="w-4 h-4 flex-shrink-0 text-indigo-400" />
                         <span>
-                          Username được tạo từ họ tên (ví dụ Hoàng Minh Nhựt →{" "}
+                          Username nên được tạo từ họ tên hoặc người gửi cấp (ví
+                          dụ Hoàng Minh Nhựt →{" "}
                           <span className="font-mono">nhuthm</span>)
                         </span>
                       </p>

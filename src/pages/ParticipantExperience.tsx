@@ -1,4 +1,5 @@
 import { useEffect, useState, type ReactNode } from "react";
+import { motion } from "framer-motion";
 import {
   Sparkles,
   Heart,
@@ -232,275 +233,331 @@ export default function ParticipantExperience({
                   <div className=" flex items-start w-full gap-2">
                     {/* Content */}
                     <div className="w-full">
-                      <div className="flex flex-col gap-1 items-center ">
-                        <p className="text-lg sm:text-xl text-rose-400 font-semibold italic tracking-wide">
-                          Thân mời,
-                        </p>
+                      <motion.section
+                        initial={{ opacity: 0, y: 60 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.8, ease: "easeOut" }}
+                        viewport={{ once: true, amount: 0.3 }}
+                        className="max-w-5xl mx-auto text-center"
+                      >
+                        <div className="flex flex-col gap-1 items-center ">
+                          <p className="text-lg sm:text-xl text-rose-400 font-semibold italic tracking-wide">
+                            Thân mời,
+                          </p>
 
-                        <p className="text-xl sm:text-2xl font-bold text-transparent w-full italic bg-clip-text bg-gradient-to-r from-indigo-600 via-rose-500 to-amber-400 drop-shadow-sm">
-                          {" "}
-                          {friendlyName}{" "}
-                        </p>
-                      </div>
-                      <GraduationMessage friendlyName={friendlyName} />
+                          <p className="text-xl sm:text-2xl font-bold text-transparent w-full italic bg-clip-text bg-gradient-to-r from-indigo-600 via-rose-500 to-amber-400 drop-shadow-sm">
+                            {" "}
+                            {friendlyName}{" "}
+                          </p>
+                        </div>
+                      </motion.section>
+                      <motion.section
+                        initial={{ opacity: 0, y: 60 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.8, ease: "easeOut" }}
+                        viewport={{ once: true, amount: 0.3 }}
+                        className="max-w-5xl mx-auto text-center"
+                      >
+                        <GraduationMessage friendlyName={friendlyName} />
+                      </motion.section>
                     </div>
                   </div>
                 </header>
-
-                <section className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <InfoPill
-                    icon={<Calendar className="w-5 h-5" />}
-                    title="Thời gian đón khách"
-                    accent="from-indigo-500 to-purple-500"
-                  >
-                    Thứ 5, ngày 20/11/2025 <br /> 08:00 - 09:00 & từ 11:00 đến
-                    14:00
-                  </InfoPill>
-                  <a
-                    href="https://www.google.com/maps/search/?api=1&query=%C4%90%E1%BA%A1i+h%E1%BB%8Dc+FPT+-+Khu+C%C3%B4ng+Ngh%E1%BB%87+Cao"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
+                <motion.section
+                  initial={{ opacity: 0, x: -80 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 1, ease: "easeOut" }}
+                  viewport={{ once: true, amount: 0.3 }}
+                  className="max-w-5xl mx-auto text-center"
+                >
+                  <section className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <InfoPill
-                      icon={<MapPin className="w-5 h-5" />}
-                      title="Địa điểm"
-                      accent="from-pink-500 to-rose-500"
+                      icon={<Calendar className="w-5 h-5" />}
+                      title="Thời gian đón khách"
+                      accent="from-indigo-500 to-purple-500"
                     >
-                      Đại học FPT HCM - Khu Công Nghệ Cao
-                      <p className="text-xs font-semibold text-rose-500">
-                        Nhấn để mở Google Maps
-                      </p>
+                      Thứ 5, ngày 20/11/2025 <br /> 08:00 - 09:00 & từ 11:00 đến
+                      14:00
                     </InfoPill>
-                  </a>
-
-                  <InfoPill
-                    icon={<Clock className="w-5 h-5" />}
-                    title="Check-in nhận bằng"
-                    accent="from-blue-500 to-cyan-500"
-                  >
-                    09:20 - 09:40 · Tầng 5 Hội trường A (Session 3)
-                  </InfoPill>
-                  <InfoPill
-                    icon={<Globe className="w-5 h-5" />}
-                    title="Kết nối cùng Phương"
-                    accent="from-amber-500 to-orange-500"
-                  >
-                    <div className="flex flex-wrap gap-2 mt-1 justify-center">
-                      <a
-                        href="https://www.facebook.com/vtbphuong.03"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-1 px-3 py-1.5 rounded-full border border-blue-200 bg-blue-50 hover:bg-blue-100 transition text-sm font-medium text-blue-700"
+                    <a
+                      href="https://www.google.com/maps/search/?api=1&query=%C4%90%E1%BA%A1i+h%E1%BB%8Dc+FPT+-+Khu+C%C3%B4ng+Ngh%E1%BB%87+Cao"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <InfoPill
+                        icon={<MapPin className="w-5 h-5" />}
+                        title="Địa điểm"
+                        accent="from-pink-500 to-rose-500"
                       >
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          fill="currentColor"
-                          viewBox="0 0 24 24"
-                          className="w-4 h-4"
+                        Đại học FPT HCM - Khu Công Nghệ Cao
+                        <p className="text-xs font-semibold text-rose-500">
+                          Nhấn để mở Google Maps
+                        </p>
+                      </InfoPill>
+                    </a>
+
+                    <InfoPill
+                      icon={<Clock className="w-5 h-5" />}
+                      title="Check-in nhận bằng"
+                      accent="from-blue-500 to-cyan-500"
+                    >
+                      09:20 - 09:40 · Tầng 5 Hội trường A (Session 3)
+                    </InfoPill>
+                    <InfoPill
+                      icon={<Globe className="w-5 h-5" />}
+                      title="Kết nối cùng Phương"
+                      accent="from-amber-500 to-orange-500"
+                    >
+                      <div className="flex flex-wrap gap-2 mt-1 justify-center">
+                        <a
+                          href="https://www.facebook.com/vtbphuong.03"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-1 px-3 py-1.5 rounded-full border border-blue-200 bg-blue-50 hover:bg-blue-100 transition text-sm font-medium text-blue-700"
                         >
-                          <path d="M22 12a10 10 0 1 0-11.5 9.87v-7H8v-2.87h2.5v-2.2c0-2.47 1.46-3.84 3.7-3.84 1.07 0 2.19.19 2.19.19v2.4h-1.23c-1.22 0-1.6.76-1.6 1.54v1.9h2.72l-.43 2.87h-2.29v7A10 10 0 0 0 22 12z" />
-                        </svg>
-                        Facebook
-                      </a>
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="currentColor"
+                            viewBox="0 0 24 24"
+                            className="w-4 h-4"
+                          >
+                            <path d="M22 12a10 10 0 1 0-11.5 9.87v-7H8v-2.87h2.5v-2.2c0-2.47 1.46-3.84 3.7-3.84 1.07 0 2.19.19 2.19.19v2.4h-1.23c-1.22 0-1.6.76-1.6 1.54v1.9h2.72l-.43 2.87h-2.29v7A10 10 0 0 0 22 12z" />
+                          </svg>
+                          Facebook
+                        </a>
 
-                      <a
-                        href="https://www.instagram.com/vtbphuong.03/"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-1 px-3 py-1.5 rounded-full border border-pink-200 bg-pink-50 hover:bg-pink-100 transition text-sm font-medium text-pink-600"
-                      >
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          fill="currentColor"
-                          viewBox="0 0 24 24"
-                          className="w-4 h-4"
+                        <a
+                          href="https://www.instagram.com/vtbphuong.03/"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-1 px-3 py-1.5 rounded-full border border-pink-200 bg-pink-50 hover:bg-pink-100 transition text-sm font-medium text-pink-600"
                         >
-                          <path d="M7 2C4.24 2 2 4.24 2 7v10c0 2.76 2.24 5 5 5h10c2.76 0 5-2.24 5-5V7c0-2.76-2.24-5-5-5H7zm0 2h10c1.66 0 3 1.34 3 3v10c0 1.66-1.34 3-3 3H7c-1.66 0-3-1.34-3-3V7c0-1.66 1.34-3 3-3zm5 2.9a5.1 5.1 0 1 0 0 10.2 5.1 5.1 0 0 0 0-10.2zm0 2a3.1 3.1 0 1 1 0 6.2 3.1 3.1 0 0 1 0-6.2zm4.75-.85a1.25 1.25 0 1 0 0-2.5 1.25 1.25 0 0 0 0 2.5z" />
-                        </svg>
-                        Instagram
-                      </a>
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="currentColor"
+                            viewBox="0 0 24 24"
+                            className="w-4 h-4"
+                          >
+                            <path d="M7 2C4.24 2 2 4.24 2 7v10c0 2.76 2.24 5 5 5h10c2.76 0 5-2.24 5-5V7c0-2.76-2.24-5-5-5H7zm0 2h10c1.66 0 3 1.34 3 3v10c0 1.66-1.34 3-3 3H7c-1.66 0-3-1.34-3-3V7c0-1.66 1.34-3 3-3zm5 2.9a5.1 5.1 0 1 0 0 10.2 5.1 5.1 0 0 0 0-10.2zm0 2a3.1 3.1 0 1 1 0 6.2 3.1 3.1 0 0 1 0-6.2zm4.75-.85a1.25 1.25 0 1 0 0-2.5 1.25 1.25 0 0 0 0 2.5z" />
+                          </svg>
+                          Instagram
+                        </a>
 
-                      <a
-                        href="https://zalo.me/0984135344"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-1 px-3 py-1.5 rounded-full border border-sky-200 bg-sky-50 hover:bg-sky-100 transition text-sm font-medium text-sky-600"
-                      >
-                        <MessageCircle className="w-4 h-4" />
-                        Zalo
-                      </a>
+                        <a
+                          href="https://zalo.me/0984135344"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-1 px-3 py-1.5 rounded-full border border-sky-200 bg-sky-50 hover:bg-sky-100 transition text-sm font-medium text-sky-600"
+                        >
+                          <MessageCircle className="w-4 h-4" />
+                          Zalo
+                        </a>
+                      </div>
+                    </InfoPill>
+                  </section>
+                </motion.section>
+                <motion.section
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.8, ease: "easeOut" }}
+                  viewport={{ once: true, amount: 0.2 }}
+                  className="max-w-5xl mx-auto text-center"
+                >
+                  <section className="grid grid-cols-1 lg:grid-cols-2 gap-6 text-left">
+                    {/* Cột 1 - Timeline */}
+                    <div className="flex flex-col h-full">
+                      <GraduationTimeline
+                        isInviteDinner={user.invited_to_dinner}
+                      />
                     </div>
-                  </InfoPill>
-                </section>
 
-                <section className="grid grid-cols-1 lg:grid-cols-2 gap-6 text-left">
-                  {/* Cột 1 - Timeline */}
-                  <div className="flex flex-col h-full">
-                    <GraduationTimeline />
-                  </div>
-
-                  {/* Cột 2 - Lời nhắn & lời chúc */}
-                  <div className="flex flex-col h-full space-y-6">
-                    {/* Lời nhắn */}
-                    <article className="bg-gradient-to-br from-rose-50 via-pink-50 to-amber-50 rounded-2xl p-5 sm:p-6 text-slate-700 shadow-xl border border-rose-100 space-y-4">
-                      <h3 className="text-lg font-semibold flex items-center gap-2 text-rose-600">
-                        <Heart className="w-5 h-5 text-rose-500" />
-                        Lời nhắn từ Phương
-                      </h3>
-                      <p className="text-sm sm:text-base text-slate-700 leading-relaxed">
-                        “Ngày tốt nghiệp không chỉ là cột mốc của riêng mình mà
-                        còn là thành quả của tình yêu thương, sự dạy dỗ và đồng
-                        hành của mọi người. Mong được nhìn thấy nụ cười của bạn
-                        tại Đại học FPT để chúng ta cùng nhau viết tiếp những ký
-                        ức thật đẹp.”
-                      </p>
-                      <p className="text-sm sm:text-base text-rose-500 italic">
-                        — Vũ Thị Bích Phương
-                      </p>
-                    </article>
-                    {/* Lời chúc */}
-                    <article className="bg-white rounded-2xl border border-rose-100 shadow-lg p-5 sm:p-6 flex flex-col gap-2 flex-1 max-h-[500px] lg:max-h-none overflow-hidden">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2 text-rose-600 font-semibold text-lg">
-                          <Heart className="w-5 h-5" />
-                          Lời chúc dành cho Phương
-                        </div>
-
-                        <div className="flex items-center gap-2">
-                          {/* 🔄 Nút reload danh sách */}
-                          <button
-                            type="button"
-                            onClick={async () => {
-                              try {
-                                setIsLoadingWishes(true);
-                                const data = await getWishes(); // hàm bạn đã có sẵn
-                                setPreviewWishes((data || []).slice(0, 4));
-                              } catch (error) {
-                                console.error(
-                                  "Lỗi khi tải lại lời chúc:",
-                                  error
-                                );
-                              } finally {
-                                setIsLoadingWishes(false);
-                              }
-                            }}
-                            aria-label="Tải lại lời chúc"
-                            className="flex items-center justify-center border border-rose-200 rounded-full w-8 h-8 hover:bg-rose-50 transition"
-                          >
-                            <RotateCcw
-                              className={`w-4 h-4 ${
-                                isLoadingWishes
-                                  ? "animate-spin text-rose-400"
-                                  : "text-rose-500"
-                              } transition-colors`}
-                            />
-                            <span className="sr-only">Tải lại lời chúc</span>
-                          </button>
-
-                          {/* ✉️ Nút mở modal gửi lời chúc */}
-                          <button
-                            type="button"
-                            onClick={() => setIsWishesModalOpen(true)}
-                            aria-label="Gửi lời chúc mới"
-                            className="flex items-center justify-center border border-rose-200 rounded-full w-8 h-8 hover:bg-rose-50 transition"
-                          >
-                            <img src={sendIcon} alt="" className="w-4 h-4" />
-                            <span className="sr-only">Gửi lời chúc</span>
-                          </button>
-                        </div>
-                      </div>
-
-                      <div className="text-xs text-slate-500">
-                        Gửi lời yêu thương và đọc những chia sẻ từ bạn bè ngay
-                        tại đây.
-                      </div>
-
-                      {/* Danh sách lời chúc */}
-                      <div className="space-y-3 overflow-y-auto pr-1 flex-1">
-                        {isLoadingWishes ? (
-                          <p className="text-sm text-slate-500">
-                            Đang tải lời chúc...
-                          </p>
-                        ) : previewWishes.length === 0 ? (
-                          <p className="text-sm text-slate-500">
-                            Chưa có lời chúc nào. Hãy là người đầu tiên nhé!
-                          </p>
-                        ) : (
-                          previewWishes.map((wish) => (
-                            <div
-                              key={wish.id ?? `${wish.name}-${wish.message}`}
-                              className="bg-gradient-to-r from-rose-50 to-white border border-rose-100 rounded-2xl p-3"
+                    {/* Cột 2 - Lời nhắn & lời chúc */}
+                    <div className="flex flex-col h-full space-y-6">
+                      {/* Lời nhắn */}
+                      <article className="bg-gradient-to-br from-rose-50 via-pink-50 to-amber-50 rounded-2xl p-5 sm:p-6 text-slate-700 shadow-xl border border-rose-100 space-y-4">
+                        <h3 className="text-lg font-semibold flex items-center gap-2 text-rose-600">
+                          <Heart className="w-5 h-5 text-rose-500" />
+                          Lời nhắn từ Phương
+                        </h3>
+                        <p className="text-sm sm:text-base text-slate-700 leading-relaxed">
+                          “Ngày tốt nghiệp không chỉ là cột mốc của riêng mình
+                          mà còn là thành quả của tình yêu thương, sự dạy dỗ và
+                          đồng hành của mọi người. Mong được nhìn thấy nụ cười
+                          của bạn tại Đại học FPT để chúng ta cùng nhau viết
+                          tiếp những ký ức thật đẹp.”
+                        </p>
+                        <p className="text-sm sm:text-base text-rose-500 italic">
+                          — Vũ Thị Bích Phương
+                        </p>
+                      </article>
+                      {/* Lời chúc */}
+                      <article className="bg-white rounded-2xl border border-rose-100 shadow-lg p-5 sm:p-6 flex flex-col gap-2 flex-1 max-h-[500px] lg:max-h-none overflow-hidden">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2 text-rose-600 font-semibold text-lg">
+                            <motion.div
+                              animate={{
+                                scale: [1, 1.3, 0.9, 1.2, 1],
+                              }}
+                              transition={{
+                                duration: 1.5,
+                                repeat: Infinity,
+                                ease: "easeInOut",
+                              }}
                             >
-                              <p className="text-sm font-semibold text-rose-600">
-                                {wish.name}
-                              </p>
-                              <p className="text-sm text-slate-700 whitespace-pre-wrap">
-                                {wish.message}
-                              </p>
-                            </div>
-                          ))
-                        )}
-                      </div>
-                    </article>
-                  </div>
-                </section>
+                              <Heart className="w-5 h-5 text-rose-600" />
+                            </motion.div>{" "}
+                            Lời chúc dành cho Phương
+                          </div>
 
-                <section className="bg-white rounded-2xl p-5 sm:p-6 border border-slate-100 shadow-lg">
-                  <h3 className="text-lg font-semibold text-slate-800 mb-4">
-                    Thông tin liên hệ
-                  </h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm sm:text-base">
-                    {[
-                      { name: "Vũ Thị Bích Phương", phone: "0984135344" },
-                      { name: "Hoàng Minh Nhựt", phone: "0938570859" },
-                    ].map((contact, index) => {
-                      const handleCopy = async (phone: string) => {
-                        try {
-                          await navigator.clipboard.writeText(phone);
-                          setCopied(true);
-                          setTimeout(() => setCopied(false), 1500);
-                        } catch {
-                          alert("Không thể sao chép số, vui lòng thử lại!");
-                        }
-                      };
+                          <div className="flex items-center gap-2">
+                            {/* 🔄 Nút reload danh sách */}
+                            <button
+                              type="button"
+                              onClick={async () => {
+                                try {
+                                  setIsLoadingWishes(true);
+                                  const data = await getWishes(); // hàm bạn đã có sẵn
+                                  setPreviewWishes((data || []).slice(0, 4));
+                                } catch (error) {
+                                  console.error(
+                                    "Lỗi khi tải lại lời chúc:",
+                                    error
+                                  );
+                                } finally {
+                                  setIsLoadingWishes(false);
+                                }
+                              }}
+                              aria-label="Tải lại lời chúc"
+                              className="flex items-center justify-center border border-rose-200 rounded-full w-8 h-8 hover:bg-rose-50 transition"
+                            >
+                              <RotateCcw
+                                className={`w-4 h-4 ${
+                                  isLoadingWishes
+                                    ? "animate-spin text-rose-400"
+                                    : "text-rose-500"
+                                } transition-colors`}
+                              />
+                              <span className="sr-only">Tải lại lời chúc</span>
+                            </button>
 
-                      return (
-                        <div
-                          key={`${contact.phone}-${index}`}
-                          className="flex items-center justify-between rounded-xl border border-amber-100 px-3 py-2 bg-gradient-to-r from-amber-50 to-white hover:shadow-md transition-all hover:scale-[1.02]"
-                        >
-                          <a
-                            href={`tel:${contact.phone}`}
-                            className="flex items-center gap-2 text-left"
-                          >
-                            <span className="font-medium text-slate-800">
-                              {contact.name}
-                            </span>
-                            <span> - </span>
-                            <span className="text-amber-600 font-semibold">
-                              {contact.phone}
-                            </span>
-                          </a>
-
-                          <button
-                            onClick={() => handleCopy(contact.phone)}
-                            className="ml-2 p-1.5 rounded-lg hover:bg-amber-100 transition"
-                            title={copied ? "Đã sao chép!" : "Sao chép số"}
-                          >
-                            <Copy
-                              className={`w-4 h-4 ${
-                                copied ? "text-green-500" : "text-amber-500"
-                              } transition-colors`}
-                            />
-                          </button>
+                            {/* ✉️ Nút mở modal gửi lời chúc */}
+                            <button
+                              type="button"
+                              onClick={() => setIsWishesModalOpen(true)}
+                              aria-label="Gửi lời chúc mới"
+                              className="flex items-center justify-center border border-rose-200 rounded-full w-8 h-8 hover:bg-rose-50 transition"
+                            >
+                              <img src={sendIcon} alt="" className="w-4 h-4" />
+                              <span className="sr-only">Gửi lời chúc</span>
+                            </button>
+                          </div>
                         </div>
-                      );
-                    })}
-                  </div>
-                </section>
 
-                <section className="pt-4 flex flex-wrap justify-center gap-4">
-                  {/* <button
+                        <div className="text-xs text-slate-500">
+                          Gửi lời yêu thương và đọc những chia sẻ từ bạn bè ngay
+                          tại đây.
+                        </div>
+
+                        {/* Danh sách lời chúc */}
+                        <div className="space-y-3 overflow-y-auto pr-1 flex-1">
+                          {isLoadingWishes ? (
+                            <p className="text-sm text-slate-500">
+                              Đang tải lời chúc...
+                            </p>
+                          ) : previewWishes.length === 0 ? (
+                            <p className="text-sm text-slate-500">
+                              Chưa có lời chúc nào. Hãy là người đầu tiên nhé!
+                            </p>
+                          ) : (
+                            previewWishes.map((wish) => (
+                              <div
+                                key={wish.id ?? `${wish.name}-${wish.message}`}
+                                className="bg-gradient-to-r from-rose-50 to-white border border-rose-100 rounded-2xl p-3"
+                              >
+                                <p className="text-sm font-semibold text-rose-600">
+                                  {wish.name}
+                                </p>
+                                <p className="text-sm text-slate-700 whitespace-pre-wrap">
+                                  {wish.message}
+                                </p>
+                              </div>
+                            ))
+                          )}
+                        </div>
+                      </article>
+                    </div>
+                  </section>
+                </motion.section>
+                <motion.section
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.8, ease: "easeOut" }}
+                  viewport={{ once: true, amount: 0.2 }}
+                  className="max-w-5xl mx-auto text-center"
+                >
+                  <section className="bg-white rounded-2xl p-5 sm:p-6 border border-slate-100 shadow-lg">
+                    <h3 className="text-lg font-semibold text-slate-800 mb-4">
+                      Thông tin liên hệ
+                    </h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm sm:text-base">
+                      {[
+                        { name: "Vũ Thị Bích Phương", phone: "0984135344" },
+                        { name: "Hoàng Minh Nhựt", phone: "0938570859" },
+                      ].map((contact, index) => {
+                        const handleCopy = async (phone: string) => {
+                          try {
+                            await navigator.clipboard.writeText(phone);
+                            setCopied(true);
+                            setTimeout(() => setCopied(false), 1500);
+                          } catch {
+                            alert("Không thể sao chép số, vui lòng thử lại!");
+                          }
+                        };
+
+                        return (
+                          <div
+                            key={`${contact.phone}-${index}`}
+                            className="flex items-center justify-between rounded-xl border border-amber-100 px-3 py-2 bg-gradient-to-r from-amber-50 to-white hover:shadow-md transition-all hover:scale-[1.02]"
+                          >
+                            <a
+                              href={`tel:${contact.phone}`}
+                              className="flex items-center gap-2 text-left"
+                            >
+                              <span className="font-medium text-slate-800">
+                                {contact.name}
+                              </span>
+                              <span> - </span>
+                              <span className="text-amber-600 font-semibold">
+                                {contact.phone}
+                              </span>
+                            </a>
+
+                            <button
+                              onClick={() => handleCopy(contact.phone)}
+                              className="ml-2 p-1.5 rounded-lg hover:bg-amber-100 transition"
+                              title={copied ? "Đã sao chép!" : "Sao chép số"}
+                            >
+                              <Copy
+                                className={`w-4 h-4 ${
+                                  copied ? "text-green-500" : "text-amber-500"
+                                } transition-colors`}
+                              />
+                            </button>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </section>
+                </motion.section>
+                <motion.section
+                  initial={{ opacity: 0, y: 60 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.8, ease: "easeOut" }}
+                  viewport={{ once: true, amount: 0.3 }}
+                  className="max-w-5xl mx-auto text-center"
+                >
+                  <section className="pt-4 flex flex-wrap justify-center gap-4">
+                    {/* <button
                     onClick={() => setIsRSVPModalOpen(true)}
                     className="group relative px-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-500 text-white font-bold rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 overflow-hidden"
                     // disabled={user. === }
@@ -512,37 +569,45 @@ export default function ParticipantExperience({
                     <div className="absolute inset-0 bg-gradient-to-r from-purple-500 to-indigo-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                   </button> */}
 
-                  <RSVPButton
-                    participants={participants ?? []}
-                    setIsRSVPModalOpen={setIsRSVPModalOpen}
-                    userId={user.id ?? ""}
-                  />
+                    <RSVPButton
+                      participants={participants ?? []}
+                      setIsRSVPModalOpen={setIsRSVPModalOpen}
+                      userId={user.id ?? ""}
+                    />
 
-                  <button
-                    onClick={() => setIsWishesModalOpen(true)}
-                    className="group px-8 py-4 bg-gradient-to-r from-rose-400 to-pink-500 text-white font-bold rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 overflow-hidden"
-                  >
-                    <span className="relative z-10 flex items-center gap-2">
-                      <Sparkles className="w-5 h-5 group-hover:animate-spin" />
-                      Gửi lời chúc
-                    </span>
-                  </button>
-                </section>
-
-                <footer className="mt-6 pt-6 border-t-2 border-rose-200 text-center space-y-2">
-                  <p className="text-sm text-gray-600">
-                    Sự hiện diện của bạn là món quà lớn nhất đối với Phương.
-                  </p>
-                  <div className="flex justify-center gap-2">
-                    {[...Array(5)].map((_, index) => (
-                      <Heart
-                        key={index}
-                        className="w-4 h-4 text-rose-400 animate-heartbeat"
-                        style={{ animationDelay: `${index * 0.2}s` }}
-                      />
-                    ))}
-                  </div>
-                </footer>
+                    <button
+                      onClick={() => setIsWishesModalOpen(true)}
+                      className="group px-8 py-4 bg-gradient-to-r from-rose-400 to-pink-500 text-white font-bold rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 overflow-hidden"
+                    >
+                      <span className="relative z-10 flex items-center gap-2">
+                        <Sparkles className="w-5 h-5 group-hover:animate-spin" />
+                        Gửi lời chúc
+                      </span>
+                    </button>
+                  </section>
+                </motion.section>
+                <motion.section
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.8, ease: "easeOut" }}
+                  viewport={{ once: true, amount: 0.2 }}
+                  className="max-w-5xl mx-auto text-center"
+                >
+                  <footer className="mt-6 pt-6 border-t-2 border-rose-200 text-center space-y-2">
+                    <p className="text-sm text-gray-600">
+                      Sự hiện diện của bạn là món quà lớn nhất đối với Phương.
+                    </p>
+                    <div className="flex justify-center gap-2">
+                      {[...Array(5)].map((_, index) => (
+                        <Heart
+                          key={index}
+                          className="w-4 h-4 text-rose-400 animate-heartbeat"
+                          style={{ animationDelay: `${index * 0.2}s` }}
+                        />
+                      ))}
+                    </div>
+                  </footer>
+                </motion.section>
               </div>
             </div>
           </div>

@@ -26,7 +26,7 @@ export const TimelineItem = ({
         }`}
       >
         {/* Cột thời gian */}
-        <div className="flex flex-col items-start justify-center text-left text-xs sm:text-sm text-indigo-600 font-semibold font-mono leading-tight min-w-[90px]">
+        <div className="flex flex-col items-start justify-center text-left text-xs sm:text-sm text-indigo-600 font-semibold  leading-tight min-w-[90px]">
           {time.split("·").map((t, idx) => (
             <span key={idx}>{t.trim()}</span>
           ))}

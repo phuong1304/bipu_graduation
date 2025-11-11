@@ -209,6 +209,8 @@ export default function WishesModal({
                     <Loader className="w-5 h-5 animate-spin" />
                     Đang gửi...
                   </span>
+                ) : hasSentWish ? (
+                  "Bạn đã gửi lời chúc! Theo dõi lời chúc xem có ai thả cảm xúc nhé!"
                 ) : (
                   "Gửi lời chúc"
                 )}

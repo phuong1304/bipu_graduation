@@ -1,7 +1,11 @@
 import { Users } from "lucide-react";
 import { TimelineItem } from "../components/TimelineItem";
 
-export default function GraduationTimeline() {
+export default function GraduationTimeline({
+  isInviteDinner,
+}: {
+  isInviteDinner: boolean;
+}) {
   return (
     <article className="relative bg-white rounded-2xl p-5 sm:p-6 border border-indigo-100 shadow-lg overflow-hidden">
       <h3 className="text-lg font-semibold text-indigo-600 mb-6 flex items-center gap-2">
@@ -32,11 +36,15 @@ export default function GraduationTimeline() {
           description="Khách mời có thể đến trong hai khung giờ này để chụp hình cùng Phương tại khuôn viên trường. Hãy liên hệ trước để Phương đón nhé!"
           highlight
         />
-        <TimelineItem
-          time="18:00 - 22:00"
-          title="Tiệc thân mật cùng gia đình & bạn bè"
-          description="Buổi tối ấm cúng, chia sẻ niềm vui và kỷ niệm đáng nhớ cùng gia đình, bạn bè thân thiết."
-        />
+        {isInviteDinner ? (
+          <TimelineItem
+            time="18:00 - 22:00"
+            title="Tiệc thân mật cùng gia đình & bạn bè"
+            description="Buổi tối ấm cúng, chia sẻ niềm vui và kỷ niệm đáng nhớ cùng gia đình, bạn bè thân thiết."
+          />
+        ) : (
+          <></>
+        )}
       </div>
     </article>
   );
