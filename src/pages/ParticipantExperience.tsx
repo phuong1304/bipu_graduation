@@ -433,7 +433,7 @@ export default function ParticipantExperience({
                         </a>
 
                         <a
-                          href="https://www.instagram.com/vtbphuong.03/"
+                          href="https://www.instagram.com/bipu1304?igsh=MXEwaGhtZnc1bWxwMA%3D%3D&utm_source=qr"
                           target="_blank"
                           rel="noopener noreferrer"
                           className="flex items-center gap-1 px-3 py-1.5 rounded-full border border-pink-200 bg-pink-50 hover:bg-pink-100 transition text-sm font-medium text-pink-600"
