@@ -638,7 +638,7 @@ export default function ParticipantExperience({
                         return (
                           <div
                             key={`${contact.phone}-${index}`}
-                            className="flex items-center justify-between rounded-xl border border-amber-100 px-3 py-2 bg-gradient-to-r from-amber-50 to-white hover:shadow-md transition-all hover:scale-[1.02]"
+                            className="flex items-center justify-between rounded-xl border border-amber-100 px-3 py-2 bg-gradient-to-r from-amber-50 to-white hover:shadow-md transition-all hover:scale-[1.02] cursor-pointer"
                           >
                             <a
                               href={`tel:${contact.phone}`}
