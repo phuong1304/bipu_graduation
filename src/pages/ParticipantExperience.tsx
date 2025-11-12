@@ -310,7 +310,7 @@ export default function ParticipantExperience({
         >
           <div className="bg-white/95 backdrop-blur-lg rounded-3xl shadow-[0_25px_70px_rgba(12,16,38,0.55)] overflow-hidden border border-indigo-100 animate-float">
             <div className="bg-gradient-to-r from-rose-300 via-sky-300 to-indigo-300 p-[1px]">
-              <div className="bg-white px-4 py-8 xs:px-6 xs:py-10 sm:p-8 md:p-12 space-y-3 xs:space-y-4">
+              <div className="bg-white px-6 py-10 sm:p-8 md:p-12 space-y-4">
                 <header className="text-center space-y-6">
                   <div className="flex flex-col items-center text-center gap-3 sm:gap-4">
                     {/* Hàng đầu: icon + text nhỏ */}
@@ -376,7 +376,7 @@ export default function ParticipantExperience({
                   viewport={{ once: true, amount: 0.3 }}
                   className="max-w-5xl mx-auto text-center"
                 >
-                  <section className="grid grid-cols-1 gap-3 xs:gap-4">
+                  <section className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <InfoPill
                       icon={<Calendar className="w-5 h-5" />}
                       title="Thời gian đón khách"
