@@ -16,9 +16,7 @@ export interface RSVPResponse {
   name: string;
   email: string;
   phone?: string;
-  will_attend: boolean;
-  guest_count: number;
-  dietary_requirements?: string;
+  will_attend?: boolean;
   will_attend_dinner?: boolean;
   created_at?: string;
   updated_at?: string;
@@ -83,7 +81,6 @@ export async function submitRSVP(rsvp: RSVPResponse) {
 
   const payload = {
     ...rsvp,
-    updated_at: new Date().toISOString()
   };
 
   const { data, error } = await supabase
@@ -347,23 +344,4 @@ export async function deleteParticipants(ids: string[]) {
     .in('id', uniqueIds);
 
   if (error) throw error;
-}
-
-export async function updateDinnerAttendance(userId: string, attending: boolean) {
-  const { data, error } = await supabase
-    .from('rsvp_responses')
-    .update({
-      will_attend_dinner: attending,
-      updated_at: new Date().toISOString()
-    })
-    .eq('user_id', userId)
-    .select()
-    .maybeSingle();
-
-    console.log("====================================");
-    console.log("data", data);
-    console.log("====================================");
-
-  if (error) throw error;
-  return data as RSVPResponse;
 }

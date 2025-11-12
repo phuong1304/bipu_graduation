@@ -15,12 +15,13 @@ import {
 import WishesModal from "../components/WishesModal";
 import RSVPModal from "../components/RSVPModal";
 import DinnerInviteModal from "../components/DinnerInviteModal";
-import type { AppUser, ParticipantRecord, Wish } from "../lib/supabase";
-import {
-  updateDinnerAttendance,
-  getWishes,
-  getParticipants,
+import type {
+  AppUser,
+  ParticipantRecord,
+  RSVPResponse,
+  Wish,
 } from "../lib/supabase";
+import { getWishes, getParticipants, submitRSVP } from "../lib/supabase";
 import sendIcon from "../../assets/icon/send.svg";
 import GraduationMessage from "../components/GraduationMessage";
 import GraduationTimeline from "../components/GraduationTimeline";
@@ -133,10 +134,17 @@ export default function ParticipantExperience({
       return;
     }
 
+    const payload: RSVPResponse = {
+      user_id: user.id,
+      name: user.display_name,
+      email: user.email,
+      phone: "",
+      will_attend_dinner: attending,
+    };
+
     try {
       setIsSavingDinnerChoice(true);
-      const data = await updateDinnerAttendance(user.id, attending);
-      console.log("✅ updateDinnerAttendance success:", data);
+      await submitRSVP(payload);
 
       // 🔁 Reload danh sách để cập nhật client
       await loadParticipants();

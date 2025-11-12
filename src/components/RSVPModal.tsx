@@ -38,9 +38,6 @@ export default function RSVPModal({
       email: user.email,
       phone: "",
       will_attend: willAttend,
-      guest_count: 1,
-      dietary_requirements: "",
-      created_at: new Date().toISOString(),
     };
 
     try {
