@@ -416,7 +416,7 @@ export default function ParticipantExperience({
                     >
                       <div className="flex flex-wrap gap-2 mt-1 justify-center">
                         <a
-                          href="https://www.facebook.com/vtbphuong.03"
+                          href="https://www.facebook.com/bichphuong1304"
                           target="_blank"
                           rel="noopener noreferrer"
                           className="flex items-center gap-1 px-3 py-1.5 rounded-full border border-blue-200 bg-blue-50 hover:bg-blue-100 transition text-sm font-medium text-blue-700"
