@@ -141,10 +141,7 @@ export default function AdminPage({ onBack }: AdminPageProps) {
   const totalDeclined = ceremonyNo.length;
   const totalPending = ceremonyPending.length;
   const totalResponses = totalConfirmed + totalDeclined;
-  const totalAttending = ceremonyYes.reduce(
-    (sum, participant) => sum + (participant.rsvp?.guest_count || 1),
-    0
-  );
+  const totalAttending = ceremonyYes.reduce((sum) => sum, 0);
   const dinnerYes = dinnerYesParticipants.length;
   const attendanceRate =
     totalResponses > 0

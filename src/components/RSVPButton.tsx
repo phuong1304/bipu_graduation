@@ -42,8 +42,6 @@ export default function RSVPButton({
     : "not_invited";
 
   const hasResDinner = dinnerState !== "pending";
-  console.log("user", user);
-  console.log("dinnerState", dinnerState);
 
   return (
     <div className="flex flex-wrap justify-start gap-4">

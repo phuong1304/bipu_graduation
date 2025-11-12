@@ -15,8 +15,13 @@ import {
 import WishesModal from "../components/WishesModal";
 import RSVPModal from "../components/RSVPModal";
 import DinnerInviteModal from "../components/DinnerInviteModal";
-import type { AppUser, ParticipantRecord, Wish } from "../lib/supabase";
-import { getWishes, getParticipants } from "../lib/supabase";
+import type {
+  AppUser,
+  ParticipantRecord,
+  RSVPResponse,
+  Wish,
+} from "../lib/supabase";
+import { getWishes, getParticipants, submitRSVP } from "../lib/supabase";
 import sendIcon from "../../assets/icon/send.svg";
 import GraduationMessage from "../components/GraduationMessage";
 import GraduationTimeline from "../components/GraduationTimeline";
@@ -72,9 +77,6 @@ export default function ParticipantExperience({
   }
 
   const currentParticipant = participants.find((p) => p.id === user.id);
-  console.log("====================================");
-  console.log("currentParticipant", currentParticipant);
-  console.log("====================================");
 
   const dinnerState = currentParticipant
     ? getDinnerState(currentParticipant)
@@ -98,7 +100,6 @@ export default function ParticipantExperience({
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            console.log("👀 Section visible — open RSVP modal");
             setIsRSVPModalOpen(true);
             observer.disconnect();
           }
@@ -162,11 +163,17 @@ export default function ParticipantExperience({
       setIsWishesModalOpen(true);
       return;
     }
+    const payload: RSVPResponse = {
+      user_id: user.id,
+      name: user.display_name,
+      email: user.email,
+      phone: "",
+      will_attend_dinner: attending,
+    };
 
     try {
       setIsSavingDinnerChoice(true);
-      const data = await updateDinnerAttendance(user.id, attending);
-      console.log("✅ updateDinnerAttendance success:", data);
+      await submitRSVP(payload);
 
       // 🔁 Reload danh sách để cập nhật client
       await loadParticipants();

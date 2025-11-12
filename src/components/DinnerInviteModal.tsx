@@ -25,9 +25,6 @@ export default function DinnerInviteModal({
   onRefresh,
 }: DinnerInviteModalProps) {
   if (!isOpen) return null;
-
-  console.log("dinnerState DinnerInviteModal", dinnerState);
-
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-fade-in">
       <div
