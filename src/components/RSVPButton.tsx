@@ -44,7 +44,7 @@ export default function RSVPButton({
   const hasResDinner = dinnerState !== "pending";
 
   return (
-    <div className="flex flex-wrap justify-start gap-4">
+    <div className="flex flex-wrap justify-center gap-4">
       {/* --- BTN DỰ TIỆC --- */}
       {user?.invited_to_dinner && (
         <button
