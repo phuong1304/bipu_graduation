@@ -334,6 +334,65 @@ export default function ParticipantsTab({
     }
   };
 
+  // ✅ Hàm xuất Excel (lấy mới nhất từ DB)
+  const handleExportExcel = async () => {
+    try {
+      setMessage(null);
+      setIsSaving(true);
+
+      // ⚙️ Lấy dữ liệu mới nhất từ DB (qua onRefresh)
+      if (onRefresh) await onRefresh();
+
+      // ⚙️ Gọi lại API trực tiếp nếu cần (nếu bạn có getParticipants)
+      // const latestParticipants = await getParticipants();
+      // ở đây ta tạm dùng participants props (vì onRefresh đã reload state cha)
+
+      if (!participants || participants.length === 0) {
+        alert("Không có dữ liệu để xuất.");
+        return;
+      }
+
+      // ⚙️ Chuẩn bị dữ liệu export (bỏ lời chúc, danh xưng, username, email)
+      const dataToExport = participants.map((p) => ({
+        "Tên hiển thị": p.display_name || "",
+        "Mời dự tiệc": p.invited_to_dinner ? "Có" : "Không",
+        "Trạng thái lễ":
+          getCeremonyState(p.rsvp) === "yes"
+            ? "Tham gia"
+            : getCeremonyState(p.rsvp) === "no"
+            ? "Không tham gia"
+            : "Chưa phản hồi",
+        "Trạng thái tiệc": p.invited_to_dinner
+          ? getDinnerState(p) === "yes"
+            ? "Tham gia tiệc"
+            : getDinnerState(p) === "no"
+            ? "Không tham gia tiệc"
+            : "Chưa phản hồi"
+          : "Không mời",
+      }));
+
+      // ⚙️ Tạo sheet và workbook
+      const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Participants");
+
+      // ⚙️ Xuất file Excel
+      XLSX.writeFile(workbook, "participants_export.xlsx", {
+        bookType: "xlsx",
+      });
+
+      setMessage({
+        type: "success",
+        text: "✅ Đã xuất file Excel thành công!",
+      });
+    } catch (err) {
+      console.error("Error exporting Excel:", err);
+      setMessage({ type: "error", text: "⚠️ Lỗi khi xuất file Excel." });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="bg-slate-50 border border-slate-200 rounded-2xl p-6 shadow-inner">
@@ -478,23 +537,32 @@ export default function ParticipantsTab({
             </h3>
           </div>
 
-          {/* 🔁 Nút tải lại danh sách */}
-          <button
-            type="button"
-            onClick={() => {
-              onRefresh();
-              loadWishes();
-            }}
-            disabled={isLoading}
-            className="flex items-center gap-2 px-3 py-2 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-800 transition disabled:opacity-50 text-sm font-medium"
-          >
-            <Loader
-              className={`w-4 h-4 ${
-                isLoading ? "animate-spin text-indigo-500" : "text-slate-500"
-              }`}
-            />
-            <span>Tải lại</span>
-          </button>
+          <div className="flex gap-4 flex-row-reverse">
+            {/* 🔁 Nút tải lại danh sách */}
+            <button
+              type="button"
+              onClick={() => {
+                onRefresh();
+                loadWishes();
+              }}
+              disabled={isLoading}
+              className="flex items-center gap-2 px-3 py-2 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-800 transition disabled:opacity-50 text-sm font-medium"
+            >
+              <Loader
+                className={`w-4 h-4 ${
+                  isLoading ? "animate-spin text-indigo-500" : "text-slate-500"
+                }`}
+              />
+              <span>Tải lại</span>
+            </button>
+            <button
+              onClick={handleExportExcel}
+              type="button"
+              className="flex items-center gap-2 px-4 py-2 bg-yellow-50 border border-yellow-200 rounded-xl text-yellow-700 font-semibold text-sm hover:bg-yellow-100 transition"
+            >
+              📤 Xuất Excel
+            </button>
+          </div>
         </div>
 
         <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between mb-4">

@@ -7,6 +7,7 @@ interface RSVPModalProps {
   onClose: () => void;
   onDecision: (willAttend: boolean) => void;
   user: AppUser;
+  onRefresh?: () => void; // 👈 callback
 }
 
 export default function RSVPModal({
@@ -14,6 +15,7 @@ export default function RSVPModal({
   onClose,
   onDecision,
   user,
+  onRefresh,
 }: RSVPModalProps) {
   const [submittingChoice, setSubmittingChoice] = useState<"yes" | "no" | null>(
     null
@@ -42,12 +44,13 @@ export default function RSVPModal({
 
     try {
       await submitRSVP(payload);
-      onDecision(willAttend);
     } catch (err) {
       setError("Đã có lỗi xảy ra. Vui lòng thử lại!");
       console.error(err);
     } finally {
       setSubmittingChoice(null);
+      await onRefresh?.();
+      onDecision(willAttend);
     }
   };
 

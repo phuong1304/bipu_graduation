@@ -18,7 +18,7 @@ export default function RSVPButton({
   setIsDinnerModalOpen,
 }: Props) {
   const hasResponded = participants.some(
-    (p) => p.id === userId && p.rsvp != null
+    (p) => p.id === userId && p.rsvp?.will_attend != undefined
   );
 
   function getDinnerState(

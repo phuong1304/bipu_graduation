@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { motion } from "framer-motion";
 import {
   Sparkles,
@@ -76,7 +76,9 @@ export default function ParticipantExperience({
     return rsvp.will_attend_dinner ? "yes" : "no";
   }
 
-  const currentParticipant = participants.find((p) => p.id === user.id);
+  const currentParticipant = useMemo(() => {
+    return participants.find((p) => p.id === user.id);
+  }, [participants, user.id]);
 
   const dinnerState = currentParticipant
     ? getDinnerState(currentParticipant)
@@ -160,7 +162,6 @@ export default function ParticipantExperience({
   const handleDinnerChoice = async (attending: boolean) => {
     if (!user.id) {
       setIsDinnerModalOpen(false);
-      setIsWishesModalOpen(true);
       return;
     }
     const payload: RSVPResponse = {
@@ -177,22 +178,27 @@ export default function ParticipantExperience({
 
       // 🔁 Reload danh sách để cập nhật client
       await loadParticipants();
+
       setCanAttendDinner(attending);
     } catch (error) {
       console.error("❌ Unable to update dinner attendance", error);
     } finally {
       setIsSavingDinnerChoice(false);
       setIsDinnerModalOpen(false);
-      setIsWishesModalOpen(true);
+      if (currentParticipant?.rsvp?.will_attend != undefined) {
+        setIsWishesModalOpen(true);
+      } else {
+        setIsRSVPModalOpen(true);
+      }
     }
   };
 
   const confettiPieces = Array.from({ length: 30 }, (_, index) => index);
 
-  const handleCeremonyDecision = (willAttend: boolean) => {
+  const handleCeremonyDecision = async (willAttend: boolean) => {
     setLastCeremonyDecision(willAttend);
-    setIsRSVPModalOpen(true);
-    if (canAttendDinner) {
+    await loadParticipants();
+    if (canAttendDinner && !currentParticipant?.rsvp?.will_attend_dinner) {
       setIsRSVPModalOpen(false);
 
       setIsDinnerModalOpen(true);
@@ -742,6 +748,7 @@ export default function ParticipantExperience({
         user={user}
         onClose={() => setIsRSVPModalOpen(false)}
         onDecision={handleCeremonyDecision}
+        onRefresh={loadParticipants}
       />
 
       <DinnerInviteModal

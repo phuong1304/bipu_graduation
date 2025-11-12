@@ -34,7 +34,7 @@ CREATE TABLE IF NOT EXISTS rsvp_responses (
     name text NOT NULL,
     email text NOT NULL,
     phone text,
-    will_attend boolean NOT NULL DEFAULT true,
+    will_attend boolean,
     guest_count integer NOT NULL DEFAULT 1,
     dietary_requirements text,
     created_at timestamptz DEFAULT now() updated_at timestamptz NOT NULL DEFAULT now()
