@@ -25,6 +25,7 @@ import sendIcon from "../../assets/icon/send.svg";
 import GraduationMessage from "../components/GraduationMessage";
 import GraduationTimeline from "../components/GraduationTimeline";
 import RSVPButton from "../components/RSVPButton";
+import { RSVPFilter } from "../components/admin/ParticipantsTab";
 
 interface ParticipantExperienceProps {
   user: AppUser;
@@ -56,6 +57,33 @@ export default function ParticipantExperience({
     ? `${user.salutation.trim()} ${user.display_name}`
     : user.display_name;
 
+  function getDinnerState(
+    participant: ParticipantRecord
+  ): RSVPFilter | "not_invited" {
+    if (!participant.invited_to_dinner) return "not_invited";
+    const rsvp = participant.rsvp;
+    // debugger;
+    if (
+      !rsvp ||
+      typeof rsvp.will_attend_dinner === "undefined" ||
+      rsvp.will_attend_dinner === null
+    ) {
+      return "pending";
+    }
+    return rsvp.will_attend_dinner ? "yes" : "no";
+  }
+
+  const currentParticipant = participants.find((p) => p.id === user.id);
+  console.log("====================================");
+  console.log("currentParticipant", currentParticipant);
+  console.log("====================================");
+
+  const dinnerState = currentParticipant
+    ? getDinnerState(currentParticipant)
+    : "not_invited";
+
+  // const hasRespondedDinner = dinnerState !== "pending";
+
   useEffect(() => {
     setCanAttendDinner(Boolean(user.invited_to_dinner));
   }, [user.invited_to_dinner]);
@@ -82,30 +110,22 @@ export default function ParticipantExperience({
     loadPreviewWishes();
   }, []);
 
-  useEffect(() => {
-    const loadParticipants = async () => {
-      try {
-        const data = await getParticipants();
-        setParticipants(data || []);
-      } catch (err) {
-        console.error(err);
-      }
-    };
-    loadParticipants();
-  }, []);
-
-  const confettiPieces = Array.from({ length: 30 }, (_, index) => index);
-
-  const handleCeremonyDecision = (willAttend: boolean) => {
-    setLastCeremonyDecision(willAttend);
-    setIsRSVPModalOpen(true);
-    if (canAttendDinner) {
-      setIsDinnerModalOpen(true);
-    } else {
-      setIsWishesModalOpen(true);
+  // 👇 Đặt ở cấp component
+  const loadParticipants = async () => {
+    try {
+      const data = await getParticipants();
+      setParticipants(data || []);
+    } catch (err) {
+      console.error("❌ Lỗi load participants:", err);
     }
   };
 
+  // 🔁 Gọi khi mount
+  useEffect(() => {
+    loadParticipants();
+  }, []);
+
+  // 🥂 Và sau khi user chọn tham dự
   const handleDinnerChoice = async (attending: boolean) => {
     if (!user.id) {
       setIsDinnerModalOpen(false);
@@ -115,16 +135,54 @@ export default function ParticipantExperience({
 
     try {
       setIsSavingDinnerChoice(true);
-      await updateDinnerAttendance(user.id, attending);
+      const data = await updateDinnerAttendance(user.id, attending);
+      console.log("✅ updateDinnerAttendance success:", data);
+
+      // 🔁 Reload danh sách để cập nhật client
+      await loadParticipants();
       setCanAttendDinner(attending);
     } catch (error) {
-      console.error("Unable to update dinner attendance", error);
+      console.error("❌ Unable to update dinner attendance", error);
     } finally {
       setIsSavingDinnerChoice(false);
       setIsDinnerModalOpen(false);
       setIsWishesModalOpen(true);
     }
   };
+
+  const confettiPieces = Array.from({ length: 30 }, (_, index) => index);
+
+  const handleCeremonyDecision = (willAttend: boolean) => {
+    setLastCeremonyDecision(willAttend);
+    setIsRSVPModalOpen(true);
+    if (canAttendDinner) {
+      setIsDinnerModalOpen(true);
+    } else {
+      setIsWishesModalOpen(false);
+    }
+  };
+
+  // const handleDinnerChoice = async (attending: boolean) => {
+  //   if (!user.id) {
+  //     setIsDinnerModalOpen(false);
+  //     setIsWishesModalOpen(true);
+  //     return;
+  //   }
+
+  //   try {
+  //     setIsSavingDinnerChoice(true);
+  //     await updateDinnerAttendance(user.id, attending);
+  //     // ✅ Gọi đúng hàm loadParticipants()
+  //     await loadParticipants();
+  //     setCanAttendDinner(attending);
+  //   } catch (error) {
+  //     console.error("Unable to update dinner attendance", error);
+  //   } finally {
+  //     setIsSavingDinnerChoice(false);
+  //     setIsDinnerModalOpen(false);
+  //     setIsWishesModalOpen(true);
+  //   }
+  // };
 
   return (
     <div
@@ -363,16 +421,16 @@ export default function ParticipantExperience({
                   viewport={{ once: true, amount: 0.2 }}
                   className="max-w-5xl mx-auto text-center"
                 >
-                  <section className="grid grid-cols-1 lg:grid-cols-2 gap-6 text-left">
+                  <section className="grid grid-cols-1 lg:grid-cols-2 gap-6 text-left items-stretch">
                     {/* Cột 1 - Timeline */}
                     <div className="flex flex-col h-full">
                       <GraduationTimeline
-                        isInviteDinner={user.invited_to_dinner}
+                        isInviteDinner={user.invited_to_dinner ?? false}
                       />
                     </div>
 
                     {/* Cột 2 - Lời nhắn & lời chúc */}
-                    <div className="flex flex-col h-full space-y-6">
+                    <div className="flex flex-col h-full space-y-6 flex-1">
                       {/* Lời nhắn */}
                       <article className="bg-gradient-to-br from-rose-50 via-pink-50 to-amber-50 rounded-2xl p-5 sm:p-6 text-slate-700 shadow-xl border border-rose-100 space-y-4">
                         <h3 className="text-lg font-semibold flex items-center gap-2 text-rose-600">
@@ -391,7 +449,10 @@ export default function ParticipantExperience({
                         </p>
                       </article>
                       {/* Lời chúc */}
-                      <article className="bg-white rounded-2xl border border-rose-100 shadow-lg p-5 sm:p-6 flex flex-col gap-2 flex-1 max-h-[500px] lg:max-h-none overflow-hidden">
+                      <article
+                        className="bg-white rounded-2xl border border-rose-100 shadow-lg 
+                 p-5 sm:p-6 flex flex-col gap-2 flex-1 overflow-hidden lg:h-full"
+                      >
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2 text-rose-600 font-semibold text-lg">
                             <motion.div
@@ -459,7 +520,16 @@ export default function ParticipantExperience({
                         </div>
 
                         {/* Danh sách lời chúc */}
-                        <div className="space-y-3 overflow-y-auto pr-1 flex-1">
+                        <div
+                          className={`
+                            space-y-3 overflow-y-auto pr-1 flex-1
+                            max-h-[400px]  ${
+                              user.invited_to_dinner
+                                ? "lg:max-h-[400px]"
+                                : "lg:max-h-[270px] "
+                            }
+                          `}
+                        >
                           {isLoadingWishes ? (
                             <p className="text-sm text-slate-500">
                               Đang tải lời chúc...
@@ -573,6 +643,8 @@ export default function ParticipantExperience({
                       participants={participants ?? []}
                       setIsRSVPModalOpen={setIsRSVPModalOpen}
                       userId={user.id ?? ""}
+                      user={user}
+                      setIsDinnerModalOpen={setIsDinnerModalOpen}
                     />
 
                     <button
@@ -634,6 +706,8 @@ export default function ParticipantExperience({
         onSelect={handleDinnerChoice}
         isSaving={isSavingDinnerChoice}
         friendlyName={friendlyName}
+        dinnerState={dinnerState}
+        onRefresh={loadParticipants}
       />
 
       <WishesModal

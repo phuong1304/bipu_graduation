@@ -38,6 +38,13 @@ export default function ParticipantLoginPage({
   );
 
   useEffect(() => {
+    const savedUsername = localStorage.getItem("username");
+    if (savedUsername) {
+      setUsername(savedUsername);
+    }
+  }, []);
+
+  useEffect(() => {
     return () => {
       if (transitionTimeoutRef.current) {
         clearTimeout(transitionTimeoutRef.current);
@@ -241,11 +248,16 @@ export default function ParticipantLoginPage({
                       <input
                         type="text"
                         value={username}
-                        onChange={(e) => setUsername(e.target.value)}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          setUsername(value);
+                          localStorage.setItem("username", value);
+                        }}
                         placeholder="Nhập username của bạn"
                         required
                         className="w-full rounded-2xl border border-slate-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-300 bg-white/90 text-slate-800"
                       />
+
                       <p className="text-xs text-slate-500 flex items-center gap-2 mt-2">
                         <Info className="w-4 h-4 flex-shrink-0 text-indigo-400" />
                         <span>

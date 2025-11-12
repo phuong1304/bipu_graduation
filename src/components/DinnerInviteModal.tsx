@@ -1,4 +1,5 @@
-import { X, Utensils, Smile, MapPin, Clock } from "lucide-react";
+import { X, Utensils, Smile, MapPin, Clock, Heart } from "lucide-react";
+import { AppUser } from "../lib/supabase";
 
 interface DinnerInviteModalProps {
   isOpen: boolean;
@@ -7,6 +8,9 @@ interface DinnerInviteModalProps {
   onSelect: (attending: boolean) => void;
   isSaving?: boolean;
   friendlyName?: string;
+  dinnerState?: string;
+  user?: AppUser;
+  onRefresh?: () => void; // 👈 callback
 }
 
 export default function DinnerInviteModal({
@@ -16,8 +20,13 @@ export default function DinnerInviteModal({
   onSelect,
   isSaving,
   friendlyName,
+  dinnerState,
+  user,
+  onRefresh,
 }: DinnerInviteModalProps) {
   if (!isOpen) return null;
+
+  console.log("dinnerState DinnerInviteModal", dinnerState);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-fade-in">
@@ -85,24 +94,46 @@ export default function DinnerInviteModal({
             {willAttendCeremony === false &&
               "Dù bạn không thể dự lễ, Phương vẫn hy vọng bạn đến chung vui trong buổi tiệc."}
           </p>
-
-          <div className="flex flex-col sm:flex-row gap-3">
-            <button
-              onClick={() => onSelect(true)}
-              disabled={!!isSaving}
-              className="flex-1 py-3 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 text-white font-semibold shadow-lg hover:shadow-xl transition disabled:opacity-60"
-            >
-              Sẽ tham gia tiệc
-            </button>
-            <button
-              onClick={() => onSelect(false)}
-              disabled={!!isSaving}
-              className="flex-1 py-3 rounded-xl border border-amber-200 text-amber-700 font-semibold hover:bg-amber-50 transition flex items-center justify-center gap-2 disabled:opacity-60"
-            >
-              <Smile className="w-5 h-5" />
-              Không tham gia được
-            </button>
-          </div>
+          {dinnerState !== "pending" ? (
+            <div className="flex justify-center w-full">
+              <button
+                className={`group relative bg-gray-300 text-gray-500 cursor-not-allowed px-8 py-4 font-bold rounded-full shadow-lg transform transition-all duration-300 overflow-hidden `}
+              >
+                <span className="relative z-10 flex items-start gap-2">
+                  <Heart className={`w-5 h-5 group-hover:animate-heartbeat`} />
+                  {dinnerState === "yes"
+                    ? "Đã xác nhận tham dự tiệc"
+                    : dinnerState === "no"
+                    ? "Phương rất tiếc khi bạn không tham dự tiệc! "
+                    : "pending"}
+                </span>
+              </button>
+            </div>
+          ) : (
+            <div className="flex flex-col sm:flex-row gap-3">
+              <button
+                onClick={async () => {
+                  await onSelect(true);
+                  onRefresh?.(); // 🔁 gọi refresh sau khi xác nhận
+                }}
+                disabled={!!isSaving}
+                className="flex-1 py-3 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 text-white font-semibold shadow-lg hover:shadow-xl transition disabled:opacity-60"
+              >
+                Sẽ tham gia tiệc
+              </button>
+              <button
+                onClick={async () => {
+                  await onSelect(false);
+                  onRefresh?.(); // 🔁 refresh lại danh sách
+                }}
+                disabled={!!isSaving}
+                className="flex-1 py-3 rounded-xl border border-amber-200 text-amber-700 font-semibold hover:bg-amber-50 transition flex items-center justify-center gap-2 disabled:opacity-60"
+              >
+                <Smile className="w-5 h-5" />
+                Không tham gia được
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>

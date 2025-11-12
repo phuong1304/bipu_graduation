@@ -360,6 +360,10 @@ export async function updateDinnerAttendance(userId: string, attending: boolean)
     .select()
     .maybeSingle();
 
+    console.log("====================================");
+    console.log("data", data);
+    console.log("====================================");
+
   if (error) throw error;
   return data as RSVPResponse;
 }

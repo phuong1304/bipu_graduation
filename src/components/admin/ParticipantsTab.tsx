@@ -18,7 +18,7 @@ interface ParticipantsTabProps {
   onRefresh: () => Promise<void> | void;
 }
 
-type RSVPFilter = "all" | "pending" | "yes" | "no";
+export type RSVPFilter = "all" | "pending" | "yes" | "no";
 type DinnerFilter = RSVPFilter | "not_invited";
 
 const defaultForm: ParticipantUpsertInput & { id: string } = {
