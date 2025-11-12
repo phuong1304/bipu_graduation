@@ -158,7 +158,7 @@ export default function ParticipantExperience({
     if (canAttendDinner) {
       setIsDinnerModalOpen(true);
     } else {
-      setIsWishesModalOpen(false);
+      setIsWishesModalOpen(true);
     }
   };
 
