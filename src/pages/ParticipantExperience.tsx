@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { motion } from "framer-motion";
 import {
   Sparkles,
@@ -15,13 +15,8 @@ import {
 import WishesModal from "../components/WishesModal";
 import RSVPModal from "../components/RSVPModal";
 import DinnerInviteModal from "../components/DinnerInviteModal";
-import type {
-  AppUser,
-  ParticipantRecord,
-  RSVPResponse,
-  Wish,
-} from "../lib/supabase";
-import { getWishes, getParticipants, submitRSVP } from "../lib/supabase";
+import type { AppUser, ParticipantRecord, Wish } from "../lib/supabase";
+import { getWishes, getParticipants } from "../lib/supabase";
 import sendIcon from "../../assets/icon/send.svg";
 import GraduationMessage from "../components/GraduationMessage";
 import GraduationTimeline from "../components/GraduationTimeline";
@@ -58,6 +53,8 @@ export default function ParticipantExperience({
     ? `${user.salutation.trim()} ${user.display_name}`
     : user.display_name;
 
+  const contactSectionRef = useRef<HTMLDivElement | null>(null);
+
   function getDinnerState(
     participant: ParticipantRecord
   ): RSVPFilter | "not_invited" {
@@ -84,6 +81,38 @@ export default function ParticipantExperience({
     : "not_invited";
 
   // const hasRespondedDinner = dinnerState !== "pending";
+
+  // ⚡ Dùng IntersectionObserver để mở popup khi người dùng scroll tới “Thông tin liên hệ”
+  useEffect(() => {
+    // 🔹 Chỉ bắt đầu quan sát khi có dữ liệu participant
+    if (!currentParticipant) return;
+
+    const willAttend = currentParticipant?.rsvp?.will_attend;
+    // 🔹 Nếu người này đã xác nhận tham dự hoặc từ chối, thì không làm gì
+    if (willAttend === true || willAttend === false) return;
+
+    const target = contactSectionRef.current;
+    if (!target) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            console.log("👀 Section visible — open RSVP modal");
+            setIsRSVPModalOpen(true);
+            observer.disconnect();
+          }
+        });
+      },
+      {
+        threshold: 0.5,
+      }
+    );
+
+    observer.observe(target);
+
+    return () => observer.disconnect();
+  }, [currentParticipant]);
 
   useEffect(() => {
     setCanAttendDinner(Boolean(user.invited_to_dinner));
@@ -134,17 +163,10 @@ export default function ParticipantExperience({
       return;
     }
 
-    const payload: RSVPResponse = {
-      user_id: user.id,
-      name: user.display_name,
-      email: user.email,
-      phone: "",
-      will_attend_dinner: attending,
-    };
-
     try {
       setIsSavingDinnerChoice(true);
-      await submitRSVP(payload);
+      const data = await updateDinnerAttendance(user.id, attending);
+      console.log("✅ updateDinnerAttendance success:", data);
 
       // 🔁 Reload danh sách để cập nhật client
       await loadParticipants();
@@ -164,8 +186,13 @@ export default function ParticipantExperience({
     setLastCeremonyDecision(willAttend);
     setIsRSVPModalOpen(true);
     if (canAttendDinner) {
+      setIsRSVPModalOpen(false);
+
       setIsDinnerModalOpen(true);
     } else {
+      setIsRSVPModalOpen(false);
+      setIsDinnerModalOpen(false);
+
       setIsWishesModalOpen(true);
     }
   };
@@ -573,7 +600,10 @@ export default function ParticipantExperience({
                   viewport={{ once: true, amount: 0.2 }}
                   className="max-w-5xl mx-auto text-center"
                 >
-                  <section className="bg-white rounded-2xl p-5 sm:p-6 border border-slate-100 shadow-lg">
+                  <section
+                    ref={contactSectionRef}
+                    className="bg-white rounded-2xl p-5 sm:p-6 border border-slate-100 shadow-lg"
+                  >
                     <h3 className="text-lg font-semibold text-slate-800 mb-4">
                       Thông tin liên hệ
                     </h3>
