@@ -310,7 +310,7 @@ export default function ParticipantExperience({
         >
           <div className="bg-white/95 backdrop-blur-lg rounded-3xl shadow-[0_25px_70px_rgba(12,16,38,0.55)] overflow-hidden border border-indigo-100 animate-float">
             <div className="bg-gradient-to-r from-rose-300 via-sky-300 to-indigo-300 p-[1px]">
-              <div className="bg-white px-6 py-10 sm:p-8 md:p-12 space-y-4">
+              <div className="bg-white px-4 py-8 xs:px-6 xs:py-10 sm:p-8 md:p-12 space-y-3 xs:space-y-4">
                 <header className="text-center space-y-6">
                   <div className="flex flex-col items-center text-center gap-3 sm:gap-4">
                     {/* Hàng đầu: icon + text nhỏ */}
@@ -326,10 +326,10 @@ export default function ParticipantExperience({
 
                     {/* Hàng thứ hai: tiêu đề & tên */}
                     <div className="text-center leading-tight">
-                      <h1 className="text-2xl sm:text-2xl md:text-4xl font-extrabold bg-gradient-to-r from-indigo-500 via-rose-500 to-amber-400 bg-clip-text text-transparent">
+                      <h1 className="text-xl xs:text-2xl md:text-4xl font-extrabold bg-gradient-to-r from-indigo-500 via-rose-500 to-amber-400 bg-clip-text text-transparent">
                         Lễ Tốt Nghiệp
                       </h1>
-                      <h2 className="text-2xl sm:text-2xl md:text-4xl font-extrabold bg-gradient-to-r from-rose-400 via-amber-500 to-pink-500 bg-clip-text text-transparent mt-1">
+                      <h2 className="text-xl xs:text-2xl md:text-4xl font-extrabold bg-gradient-to-r from-rose-400 via-amber-500 to-pink-500 bg-clip-text text-transparent mt-1">
                         Vũ Thị Bích Phương
                       </h2>
                     </div>
@@ -376,7 +376,7 @@ export default function ParticipantExperience({
                   viewport={{ once: true, amount: 0.3 }}
                   className="max-w-5xl mx-auto text-center"
                 >
-                  <section className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <section className="grid grid-cols-1 gap-3 xs:gap-4">
                     <InfoPill
                       icon={<Calendar className="w-5 h-5" />}
                       title="Thời gian đón khách"
@@ -414,12 +414,12 @@ export default function ParticipantExperience({
                       title="Kết nối cùng Phương"
                       accent="from-amber-500 to-orange-500"
                     >
-                      <div className="flex flex-wrap gap-2 mt-1 justify-center">
+                      <div className="flex flex-wrap gap-1.5 xs:gap-2 mt-1 justify-center">
                         <a
                           href="https://www.facebook.com/bichphuong1304"
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="flex items-center gap-1 px-3 py-1.5 rounded-full border border-blue-200 bg-blue-50 hover:bg-blue-100 transition text-sm font-medium text-blue-700"
+                          className="flex items-center gap-1 px-2.5 xs:px-3 py-1 xs:py-1.5 rounded-full border border-blue-200 bg-blue-50 hover:bg-blue-100 transition text-xs xs:text-sm font-medium text-blue-700"
                         >
                           <svg
                             xmlns="http://www.w3.org/2000/svg"
@@ -436,7 +436,7 @@ export default function ParticipantExperience({
                           href="https://www.instagram.com/bipu1304?igsh=MXEwaGhtZnc1bWxwMA%3D%3D&utm_source=qr"
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="flex items-center gap-1 px-3 py-1.5 rounded-full border border-pink-200 bg-pink-50 hover:bg-pink-100 transition text-sm font-medium text-pink-600"
+                          className="flex items-center gap-1 px-2.5 xs:px-3 py-1 xs:py-1.5 rounded-full border border-pink-200 bg-pink-50 hover:bg-pink-100 transition text-xs xs:text-sm font-medium text-pink-600"
                         >
                           <svg
                             xmlns="http://www.w3.org/2000/svg"
@@ -453,7 +453,7 @@ export default function ParticipantExperience({
                           href="https://zalo.me/0984135344"
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="flex items-center gap-1 px-3 py-1.5 rounded-full border border-sky-200 bg-sky-50 hover:bg-sky-100 transition text-sm font-medium text-sky-600"
+                          className="flex items-center gap-1 px-2.5 xs:px-3 py-1 xs:py-1.5 rounded-full border border-sky-200 bg-sky-50 hover:bg-sky-100 transition text-xs xs:text-sm font-medium text-sky-600"
                         >
                           <MessageCircle className="w-4 h-4" />
                           Zalo
