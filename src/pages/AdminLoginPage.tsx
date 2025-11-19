@@ -7,12 +7,11 @@ interface AdminLoginPageProps {
   onAuthenticated: (user: AppUser) => void;
 }
 
-const TEST_ADMIN_USERNAME = "admin_master";
 
 export default function AdminLoginPage({
   onAuthenticated,
 }: AdminLoginPageProps) {
-  const [username, setUsername] = useState(TEST_ADMIN_USERNAME);
+  const [username, setUsername] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
@@ -45,23 +44,6 @@ export default function AdminLoginPage({
           <p className="text-gray-500">Đăng nhập để xem danh sách xác nhận</p>
         </div>
 
-        <div className="mb-6 p-4 bg-blue-50 border border-blue-100 rounded-2xl text-sm text-blue-600">
-          <p className="font-semibold mb-1">Tài khoản demo</p>
-          <p>
-            Username demo:{" "}
-            <span className="font-mono">{TEST_ADMIN_USERNAME}</span>
-          </p>
-          <p className="text-xs text-gray-500 flex items-center gap-2 mt-2">
-            <Info className="w-4 h-4" />
-            <span>
-              Username được tạo từ họ tên nếu bị trùng với người khác hãy thêm
-              số đằng sau (ví dụ Nguyễn Văn Hải -&gt;{" "}
-            </span>
-            <span className="font-mono">hainv</span>
-            <span>)</span>
-          </p>
-        </div>
-
         <form className="space-y-4" onSubmit={handleSubmit}>
           <div>
             <label className="text-sm font-medium text-gray-600 mb-1 block">
@@ -69,6 +51,7 @@ export default function AdminLoginPage({
             </label>
             <input
               type="text"
+              placeholder="Username"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               required

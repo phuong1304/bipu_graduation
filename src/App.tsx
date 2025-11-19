@@ -27,7 +27,7 @@ function App() {
           }
         />
         <Route
-          path="/admin"
+          path="/bipu1304minu2409"
           element={
             adminSession ? (
               <AdminPage onBack={() => setAdminSession(null)} />
